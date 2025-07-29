@@ -636,14 +636,20 @@ document.addEventListener('DOMContentLoaded', () => {
                             <input type="number" id="product-stock-input" placeholder="Stock" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
                         </div>
                         <div>
-                            <label for="product-price-input" class="block text-gray-400 text-sm font-medium mb-2">Price (per unit)</label>
-                            <input type="number" id="product-price-input" placeholder="Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                            <label for="product-price-input" class="block text-gray-400 text-sm font-medium mb-2">Base Price (per unit)</label>
+                            <input type="number" id="product-price-input" placeholder="Base Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
                         </div>
                         <div class="col-span-2">
                             <label class="block text-gray-400 text-sm font-medium mb-2">API Links (Optional)</label>
                             <input type="text" id="product-api-link-1-day" placeholder="1 Day Key API Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
                             <input type="text" id="product-api-link-7-day" placeholder="7 Day Key API Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
                             <input type="text" id="product-api-link-30-day" placeholder="30 Day Key API Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-gray-400 text-sm font-medium mb-2">Key Prices (Optional)</label>
+                            <input type="number" id="product-price-1-day" placeholder="1 Day Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
+                            <input type="number" id="product-price-7-day" placeholder="7 Day Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
+                            <input type="number" id="product-price-30-day" placeholder="30 Day Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
                         </div>
                     </div>
                     <button id="add-product-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-4">Add Product</button>
@@ -654,7 +660,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <tr>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tl-lg">Product Name</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Stock</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Price</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Base Price</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">1 Day Price</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">7 Day Price</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">30 Day Price</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">1 Day API</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">7 Day API</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">30 Day API</th>
@@ -675,6 +684,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const productApiLink1DayInput = document.getElementById('product-api-link-1-day');
         const productApiLink7DayInput = document.getElementById('product-api-link-7-day');
         const productApiLink30DayInput = document.getElementById('product-api-link-30-day');
+        // New price inputs
+        const productPrice1DayInput = document.getElementById('product-price-1-day');
+        const productPrice7DayInput = document.getElementById('product-price-7-day');
+        const productPrice30DayInput = document.getElementById('product-price-30-day');
+
         const addProductBtn = document.getElementById('add-product-btn');
         const productsTableBody = document.getElementById('products-table-body');
 
@@ -689,6 +703,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <input type="number" class="product-stock-edit-input w-20 p-1 rounded-md bg-gray-800 text-white border border-gray-600" value="${product.stock}" data-index="${index}">
                     </td>
                     <td class="py-2 px-4">$${product.price.toFixed(2)}</td>
+                    <td class="py-2 px-4">$${product.keyPrices?.['1_day']?.toFixed(2) || 'N/A'}</td>
+                    <td class="py-2 px-4">$${product.keyPrices?.['7_day']?.toFixed(2) || 'N/A'}</td>
+                    <td class="py-2 px-4">$${product.keyPrices?.['30_day']?.toFixed(2) || 'N/A'}</td>
                     <td class="py-2 px-4 text-xs break-all">${product.keyLinks?.['1_day'] || 'N/A'}</td>
                     <td class="py-2 px-4 text-xs break-all">${product.keyLinks?.['7_day'] || 'N/A'}</td>
                     <td class="py-2 px-4 text-xs break-all">${product.keyLinks?.['30_day'] || 'N/A'}</td>
@@ -736,20 +753,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 '7_day': productApiLink7DayInput.value.trim(),
                 '30_day': productApiLink30DayInput.value.trim()
             };
-            const keyPrices = { // Ensure keyPrices are also captured
-                '1_day': parseFloat(productPriceInput.value.trim()), // Assuming base price for 1-day for now
-                '7_day': parseFloat(productPriceInput.value.trim()) * 3, // Example multiplier
-                '30_day': parseFloat(productPriceInput.value.trim()) * 10 // Example multiplier
+            const keyPrices = {
+                '1_day': parseFloat(productPrice1DayInput.value.trim()) || 0, // Capture 1 Day Price
+                '7_day': parseFloat(productPrice7DayInput.value.trim()) || 0, // Capture 7 Day Price
+                '30_day': parseFloat(productPrice30DayInput.value.trim()) || 0 // Capture 30 Day Price
             };
-            // NOTE: In a real scenario, you'd likely have separate input fields for each key duration's price.
-            // For now, I'm using the main product price input and multiplying it for demo purposes.
-            // If you want separate price inputs for each key duration, let me know.
 
 
             if (!name || isNaN(stock) || stock < 0 || isNaN(price) || price < 0) {
-                showMessage('Please enter a valid product name, non-negative stock, and a valid price.');
+                showMessage('Please enter a valid product name, non-negative stock, and a valid base price.');
                 return;
             }
+
+            // Validate duration prices only if API links are provided
+            if (Object.values(keyLinks).some(link => link.length > 0)) {
+                if (
+                    (keyLinks['1_day'] && (isNaN(keyPrices['1_day']) || keyPrices['1_day'] < 0)) ||
+                    (keyLinks['7_day'] && (isNaN(keyPrices['7_day']) || keyPrices['7_day'] < 0)) ||
+                    (keyLinks['30_day'] && (isNaN(keyPrices['30_day']) || keyPrices['30_day'] < 0))
+                ) {
+                    showMessage('Please enter valid non-negative prices for all provided key durations.');
+                    return;
+                }
+            }
+
 
             dataStore.products.push({ name, stock, price, keyLinks, keyPrices }); // Store keyLinks and keyPrices objects
             saveDataToLocalStorage();
@@ -760,6 +787,9 @@ document.addEventListener('DOMContentLoaded', () => {
             productApiLink1DayInput.value = '';
             productApiLink7DayInput.value = '';
             productApiLink30DayInput.value = '';
+            productPrice1DayInput.value = ''; // Clear new price inputs
+            productPrice7DayInput.value = '';
+            productPrice30DayInput.value = '';
         });
         renderTable(); // Initial render for products table
     };
