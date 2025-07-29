@@ -170,6 +170,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <select id="product-select" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
                             </select>
                     </div>
+                    <div class="mb-4" id="key-duration-selection-container">
+                        <label for="key-duration-select" class="block text-gray-400 text-sm font-medium mb-2">Select Key Duration</label>
+                        <select id="key-duration-select" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                            </select>
+                    </div>
                     <div class="mb-4">
                         <label for="quantity-input" class="block text-gray-400 text-sm font-medium mb-2">Quantity</label>
                         <input type="number" id="quantity-input" value="1" min="1" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
@@ -180,10 +185,13 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
 
         const productSelect = document.getElementById('product-select');
+        const keyDurationSelect = document.getElementById('key-duration-select');
+        const keyDurationSelectionContainer = document.getElementById('key-duration-selection-container');
         const quantityInput = document.getElementById('quantity-input');
         const buyKeyBtn = document.getElementById('buy-key-btn');
         const currentBalanceDisplay = document.getElementById('current-balance');
 
+        // Populate product select
         productSelect.innerHTML = '<option value="">Select a product</option>';
         dataStore.products.forEach(product => {
             const option = document.createElement('option');
@@ -198,12 +206,49 @@ document.addEventListener('DOMContentLoaded', () => {
             currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
         }
 
+        // Function to update key duration options based on selected product
+        const updateKeyDurationOptions = () => {
+            const selectedProductName = productSelect.value;
+            const selectedProduct = dataStore.products.find(p => p.name === selectedProductName);
+
+            keyDurationSelect.innerHTML = '<option value="">Select key duration</option>';
+            keyDurationSelectionContainer.classList.add('hidden'); // Hide by default
+
+            if (selectedProduct && selectedProduct.keyLinks) {
+                const hasApiLinks = Object.keys(selectedProduct.keyLinks).some(key => selectedProduct.keyLinks[key]);
+                if (hasApiLinks) {
+                    keyDurationSelectionContainer.classList.remove('hidden');
+                    for (const durationKey in selectedProduct.keyLinks) {
+                        if (selectedProduct.keyLinks[durationKey]) { // Only add if API link exists
+                            const option = document.createElement('option');
+                            option.value = durationKey;
+                            // Convert durationKey (e.g., '1_day') to display text (e.g., '1 Day')
+                            option.textContent = durationKey.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase());
+                            keyDurationSelect.appendChild(option);
+                        }
+                    }
+                }
+            }
+        };
+
+        // Event listener for product selection change
+        productSelect.addEventListener('change', updateKeyDurationOptions);
+
+        // Initial call to set up key duration options (if a product is pre-selected or on page load)
+        updateKeyDurationOptions();
+
+
         buyKeyBtn.addEventListener('click', () => {
             const selectedProductName = productSelect.value;
+            const selectedKeyDuration = keyDurationSelect.value;
             const quantity = parseInt(quantityInput.value);
 
             if (!selectedProductName) {
                 showMessage('Please select a product.');
+                return;
+            }
+            if (!selectedKeyDuration) {
+                showMessage('Please select a key duration.');
                 return;
             }
             if (isNaN(quantity) || quantity <= 0) {
@@ -222,12 +267,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const totalCost = selectedProduct.price * quantity;
+            const totalCost = selectedProduct.price * quantity; // Assuming price is per product, not per key duration type for simplicity
             const currentUserIndex = dataStore.users.findIndex(user => user.email === loggedInUserEmail);
             const currentUserData = dataStore.users[currentUserIndex];
 
             if (currentUserData.balance < totalCost) {
                 showMessage(`Insufficient balance. You need $${totalCost.toFixed(2)} but have $${currentUserData.balance.toFixed(2)}.`);
+                return;
+            }
+
+            // Get the specific API link for the selected duration
+            const apiLinkToUse = selectedProduct.keyLinks[selectedKeyDuration];
+            if (!apiLinkToUse) {
+                showMessage(`No API link found for ${selectedKeyDuration} of ${selectedProductName}.`);
                 return;
             }
 
@@ -241,41 +293,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Simulate API call
             setTimeout(() => {
-                let generatedKey = `KEY-${Math.random().toString(36).substr(2, 9).toUpperCase()}`; // Placeholder key
+                let generatedKey = `KEY-${selectedKeyDuration.toUpperCase()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`; // Placeholder key
 
-                // In a real scenario, you'd make an actual fetch() call to selectedProduct.apiLink here.
+                // In a real scenario, you'd make an actual fetch() call to apiLinkToUse here.
                 // For this demo, we'll assume success for now. You could add logic for failure.
 
-                if (selectedProduct.apiLink) {
-                    // Simulate successful API call
-                    // For demonstration, we'll always succeed if there's an apiLink
-                    // In a real app, you'd check the actual API response for success/failure
+                // Update product stock
+                selectedProduct.stock -= quantity;
 
-                    // Update product stock
-                    selectedProduct.stock -= quantity;
+                // Add order to user's orders with the generated key
+                const order = {
+                    id: Date.now().toString().slice(-6),
+                    product: `${selectedProductName} (${selectedKeyDuration.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase())})`, // Include duration in product name
+                    quantity: quantity,
+                    cost: totalCost,
+                    date: new Date().toLocaleString(),
+                    status: 'Completed',
+                    key: generatedKey // Store the generated key
+                };
+                currentUserData.orders.push(order);
+                saveDataToLocalStorage(); // Save updated dataStore
 
-                    // Add order to user's orders with the generated key
-                    const order = {
-                        id: Date.now().toString().slice(-6),
-                        product: selectedProductName,
-                        quantity: quantity,
-                        cost: totalCost,
-                        date: new Date().toLocaleString(),
-                        status: 'Completed',
-                        key: generatedKey // Store the generated key
-                    };
-                    currentUserData.orders.push(order);
-                    saveDataToLocalStorage(); // Save updated dataStore
-
-                    showMessage(`Successfully purchased ${quantity} of ${selectedProductName} for $${totalCost.toFixed(2)}! Your key: ${generatedKey}`);
-                } else {
-                    // This case should ideally not happen if products always have an apiLink
-                    // Or if they do not, they would be handled by a different purchase mechanism.
-                    showMessage('Product does not have an associated API link for key generation.');
-                    // Refund balance if no API link was found for a product meant to have one
-                    currentUserData.balance += totalCost;
-                    saveDataToLocalStorage();
-                }
+                showMessage(`Successfully purchased ${quantity} of ${order.product} for $${totalCost.toFixed(2)}! Your key: ${generatedKey}`);
 
                 buyKeyBtn.disabled = false; // Re-enable button
                 renderBuyKeysPage(); // Re-render to update balance and product list
@@ -420,22 +459,39 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="content-page">
                 <h1 class="text-3xl font-bold text-white mb-6">Products</h1>
                 <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col">
-                    <div class="flex mb-4 space-x-4">
-                        <input type="text" id="product-name-input" placeholder="Product Name" class="flex-1 p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        <input type="number" id="product-stock-input" placeholder="Stock" class="w-24 p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        <input type="number" id="product-price-input" placeholder="Price" step="0.01" class="w-24 p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        <input type="text" id="product-api-link-input" placeholder="API Link (Optional)" class="flex-1 p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        <button id="add-product-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md">Add Product</button>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="product-name-input" class="block text-gray-400 text-sm font-medium mb-2">Product Name</label>
+                            <input type="text" id="product-name-input" placeholder="Product Name" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                        </div>
+                        <div>
+                            <label for="product-stock-input" class="block text-gray-400 text-sm font-medium mb-2">Stock</label>
+                            <input type="number" id="product-stock-input" placeholder="Stock" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                        </div>
+                        <div>
+                            <label for="product-price-input" class="block text-gray-400 text-sm font-medium mb-2">Price (per unit)</label>
+                            <input type="number" id="product-price-input" placeholder="Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-gray-400 text-sm font-medium mb-2">API Links (Optional)</label>
+                            <input type="text" id="product-api-link-1-day" placeholder="1 Day Key API Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
+                            <input type="text" id="product-api-link-7-day" placeholder="7 Day Key API Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
+                            <input type="text" id="product-api-link-30-day" placeholder="30 Day Key API Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                        </div>
                     </div>
-                    <div class="overflow-x-auto flex-1">
+                    <button id="add-product-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-4">Add Product</button>
+
+                    <div class="overflow-x-auto flex-1 mt-6">
                         <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
                             <thead>
                                 <tr>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tl-lg">Product Name</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Stock</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Price</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">API Link</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Actions</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">1 Day API</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">7 Day API</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">30 Day API</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tr-lg">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="products-table-body" class="divide-y divide-gray-700">
@@ -449,7 +505,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const productNameInput = document.getElementById('product-name-input');
         const productStockInput = document.getElementById('product-stock-input');
         const productPriceInput = document.getElementById('product-price-input');
-        const productApiLinkInput = document.getElementById('product-api-link-input'); // New input
+        const productApiLink1DayInput = document.getElementById('product-api-link-1-day');
+        const productApiLink7DayInput = document.getElementById('product-api-link-7-day');
+        const productApiLink30DayInput = document.getElementById('product-api-link-30-day');
         const addProductBtn = document.getElementById('add-product-btn');
         const productsTableBody = document.getElementById('products-table-body');
 
@@ -464,7 +522,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <input type="number" class="product-stock-edit-input w-20 p-1 rounded-md bg-gray-800 text-white border border-gray-600" value="${product.stock}" data-index="${index}">
                     </td>
                     <td class="py-2 px-4">$${product.price.toFixed(2)}</td>
-                    <td class="py-2 px-4 text-xs break-all">${product.apiLink || 'N/A'}</td>
+                    <td class="py-2 px-4 text-xs break-all">${product.keyLinks?.['1_day'] || 'N/A'}</td>
+                    <td class="py-2 px-4 text-xs break-all">${product.keyLinks?.['7_day'] || 'N/A'}</td>
+                    <td class="py-2 px-4 text-xs break-all">${product.keyLinks?.['30_day'] || 'N/A'}</td>
                     <td class="py-2 px-4 flex space-x-2">
                         <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-1 px-2 rounded-md update-product-stock-btn" data-index="${index}">Update Stock</button>
                         <button class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded-md delete-product-btn" data-index="${index}">Remove</button>
@@ -504,20 +564,26 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = productNameInput.value.trim();
             const stock = parseInt(productStockInput.value.trim());
             const price = parseFloat(productPriceInput.value.trim());
-            const apiLink = productApiLinkInput.value.trim(); // Get API Link
+            const keyLinks = {
+                '1_day': productApiLink1DayInput.value.trim(),
+                '7_day': productApiLink7DayInput.value.trim(),
+                '30_day': productApiLink30DayInput.value.trim()
+            };
 
             if (!name || isNaN(stock) || stock < 0 || isNaN(price) || price < 0) {
                 showMessage('Please enter a valid product name, non-negative stock, and a valid price.');
                 return;
             }
 
-            dataStore.products.push({ name, stock, price, apiLink }); // Add apiLink to product object
+            dataStore.products.push({ name, stock, price, keyLinks }); // Store keyLinks object
             saveDataToLocalStorage();
             renderTable();
             productNameInput.value = '';
             productStockInput.value = '';
             productPriceInput.value = '';
-            productApiLinkInput.value = ''; // Clear API Link input
+            productApiLink1DayInput.value = '';
+            productApiLink7DayInput.value = '';
+            productApiLink30DayInput.value = '';
         });
         renderTable(); // Initial render for products table
     };
@@ -791,10 +857,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize some default products if dataStore.products is empty
     if (dataStore.products.length === 0) {
         dataStore.products.push(
-            { name: 'Zero Day - Day Key', stock: 100, price: 3.50, apiLink: 'https://desync.mysrv.us/api/seller/keys/zeroday/1/3c7eb3b4de899d279d23d1b2cc546cb96561fec740678f697e52bf5eef21a8a9' },
-            { name: 'Zero Day - 7 Day Key', stock: 50, price: 13.00, apiLink: 'https://desync.mysrv.us/api/seller/keys/zeroday/7/3c7eb3b4de899d279d23d1b2cc546cb96561fec740678f697e52bf5eef21a8a9' },
-            { name: 'Zero Day - 30 Day Key', stock: 20, price: 25.50, apiLink: 'https://desync.mysrv.us/api/seller/keys/zeroday/30/3c7eb3b4de899d279d23d1b2cc546cb96561fec740678f697e52bf5eef21a8a9' },
-            { name: 'Example Product (No API)', stock: 10, price: 10.00, apiLink: '' } // Example of a product without an API link
+            {
+                name: 'Zero Day',
+                stock: 1000, // A high stock as keys are generated via API
+                price: 0, // Price will be determined by key duration
+                keyLinks: {
+                    '1_day': 'https://desync.mysrv.us/api/seller/keys/zeroday/1/3c7eb3b4de899d279d23d1b2cc546cb96561fec740678f697e52bf5eef21a8a9',
+                    '7_day': 'https://desync.mysrv.us/api/seller/keys/zeroday/7/3c7eb3b4de899d279d23d1b2cc546cb96561fec740678f697e52bf5eef21a8a9',
+                    '30_day': 'https://desync.mysrv.us/api/seller/keys/zeroday/30/3c7eb3b4de899d279d23d1b2cc546cb96561fec740678f697e52bf5eef21a8a9'
+                },
+                keyPrices: { // New: Store prices per key duration
+                    '1_day': 3.50,
+                    '7_day': 13.00,
+                    '30_day': 25.50
+                }
+            },
+            {
+                name: 'Example Product (No API Keys)',
+                stock: 10,
+                price: 10.00,
+                keyLinks: {}, // Empty object for products without API keys
+                keyPrices: {}
+            }
         );
         saveDataToLocalStorage();
     }
