@@ -320,7 +320,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // No initial call to updateKeyDurationOptions here for selectedProduct, as selectedProduct is null.
         // It will be called on product card click. This is the intended behavior.
 
-        buyKeyBtn.addEventListener('click', () => {
+        buyKeyBtn.addEventListener('click', async () => { // Made async to use await
             if (!selectedProduct) {
                 showMessage('Please select a product.');
                 return;
@@ -372,51 +372,52 @@ document.addEventListener('DOMContentLoaded', () => {
             saveDataToLocalStorage(); // Save updated user data
 
             // Re-fetch currentUser from dataStore after saving to ensure it's up-to-date
-            // This is important because `currentUser` was a reference, and `saveDataToLocalStorage`
-            // might re-parse the data, making the old reference stale.
             currentUser = dataStore.users.find(user => user.email === loggedInUserEmail);
             if (currentUser) {
                 currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`; // Update balance display
-                // Also update dashboard wallet balance if dashboard is currently rendered
                 document.getElementById('dashboard-wallet-balance') && (document.getElementById('dashboard-wallet-balance').textContent = `$${currentUser.balance.toFixed(2)}`);
             }
-
 
             showMessage('Processing your order...');
             buyKeyBtn.disabled = true; // Disable button during processing
 
-            // Simulate API call
-            setTimeout(() => {
-                let generatedKey = `SIMULATED-KEY-${crypto.randomUUID().split('-')[0].toUpperCase()}`; // More realistic placeholder key
+            // --- START Cloudflare Worker Integration ---
+            // IMPORTANT: Replaced with your actual Worker URL.
+            const CLOUDFLARE_WORKER_URL = 'https://still-bush-5b4e.infiniteggpaypal.workers.dev/'; // Your deployed Worker URL
 
-                if (apiLinkToUse) {
-                    // In a real scenario, you'd make an actual fetch() call to apiLinkToUse here.
-                    // For this demo, we'll assume success for now.
-                    // Example of a real fetch call (would require a backend proxy):
-                    /*
-                    fetch(apiLinkToUse)
-                        .then(response => response.json())
-                        .then(data => {
-                            generatedKey = data.key; // Assuming the API returns a 'key' field
-                            // ... rest of success logic ...
-                        })
-                        .catch(error => {
-                            console.error('API call failed:', error);
-                            showMessage('Key generation failed. Please try again or contact support.');
-                            // Optionally refund balance here if API call failed after deduction
-                            currentUser.balance += totalCost;
-                            saveDataToLocalStorage();
-                            currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
-                            document.getElementById('dashboard-wallet-balance') && (document.getElementById('dashboard-wallet-balance').textContent = `$${currentUser.balance.toFixed(2)}`);
-                        });
-                    */
-                    generatedKey = `SIMULATED-API-KEY-${selectedKeyDuration.toUpperCase()}-${crypto.randomUUID().split('-')[0].toUpperCase()}`;
+            try {
+                const response = await fetch(CLOUDFLARE_WORKER_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        productName: selectedProduct.name,
+                        duration: selectedKeyDuration
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    // Handle errors returned by the Worker
+                    console.error('Error from Cloudflare Worker:', result.error || 'Unknown error');
+                    showMessage(`Purchase failed: ${result.error || 'An unknown error occurred.'}`);
+
+                    // Refund balance if key generation failed after deduction
+                    currentUser.balance += totalCost;
+                    saveDataToLocalStorage();
+                    currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
+                    document.getElementById('dashboard-wallet-balance') && (document.getElementById('dashboard-wallet-balance').textContent = `$${currentUser.balance.toFixed(2)}`);
+                    return;
                 }
 
-                // Update product stock
+                const realKey = result.key; // Get the real key from the Worker's response
+
+                // Update product stock (still client-side for this demo, but ideally also backend)
                 selectedProduct.stock -= quantity;
 
-                // Add order to user's orders with the generated key
+                // Add order to user's orders with the REAL generated key
                 const order = {
                     id: Date.now().toString().slice(-6),
                     product: productDisplayName,
@@ -424,18 +425,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     cost: totalCost,
                     date: new Date().toLocaleString(),
                     status: 'Completed',
-                    key: generatedKey // Store the generated key
+                    key: realKey // Store the real key
                 };
                 currentUser.orders.push(order);
-                saveDataToLocalStorage(); // Save updated dataStore (users and products)
+                saveDataToLocalStorage(); // Save updated dataStore
 
-                showMessage(`Successfully purchased ${quantity} of ${order.product} for $${totalCost.toFixed(2)}! Your key: ${generatedKey}`);
+                showMessage(`Successfully purchased ${quantity} of ${order.product} for $${totalCost.toFixed(2)}! Your key: ${realKey}`);
 
+            } catch (error) {
+                console.error('Network or unexpected error calling Cloudflare Worker:', error);
+                showMessage(`Purchase failed: Network error or unexpected response.`);
+                // Refund balance for network errors too
+                currentUser.balance += totalCost;
+                saveDataToLocalStorage();
+                currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
+                document.getElementById('dashboard-wallet-balance') && (document.getElementById('dashboard-wallet-balance').textContent = `$${currentUser.balance.toFixed(2)}`);
+            } finally {
                 buyKeyBtn.disabled = false; // Re-enable button
-                // Re-render relevant parts instead of entire page to avoid potential re-initialization issues
-                // We already updated currentBalanceDisplay, now ensure dashboard reflects it too
-                // renderBuyKeysPage(); // Removed full re-render here to avoid potential state resets
-            }, 1500); // Simulate 1.5 second API call delay
+            }
+            // --- END Cloudflare Worker Integration ---
         });
     };
 
