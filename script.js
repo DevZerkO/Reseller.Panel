@@ -47,19 +47,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Functions to load and save data from/to Local Storage
     // This is for persistence in Canvas, but is NOT secure for sensitive data in production.
     const loadDataFromLocalStorage = () => {
+        console.log('Loading data from localStorage...');
         const storedUsers = localStorage.getItem('users');
         const storedProducts = localStorage.getItem('products');
         if (storedUsers) {
             dataStore.users = JSON.parse(storedUsers);
+            console.log('Users loaded:', dataStore.users);
+        } else {
+            dataStore.users = [];
+            console.log('No users found in localStorage, initializing empty array.');
         }
         if (storedProducts) {
             dataStore.products = JSON.parse(storedProducts);
+            console.log('Products loaded:', dataStore.products);
+        } else {
+            dataStore.products = [];
+            console.log('No products found in localStorage, initializing empty array.');
         }
     };
 
     const saveDataToLocalStorage = () => {
+        console.log('Saving data to localStorage...');
         localStorage.setItem('users', JSON.stringify(dataStore.users));
         localStorage.setItem('products', JSON.stringify(dataStore.products));
+        console.log('Data saved. Current users in dataStore:', dataStore.users);
+        console.log('Current products in dataStore:', dataStore.products);
     };
 
     // Remember Me Logic (only for username/email)
@@ -165,12 +177,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 <h1 class="text-3xl font-bold text-white mb-6">Buy Keys</h1>
                 <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
                     <p class="text-gray-400 text-lg mb-4">Your current balance: <span id="current-balance" class="font-bold text-white">$0.00</span></p>
+
                     <div class="mb-4">
-                        <label for="product-select" class="block text-gray-400 text-sm font-medium mb-2">Select Product</label>
-                        <select id="product-select" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                            </select>
+                        <label class="block text-gray-400 text-sm font-medium mb-2">Select Product</label>
+                        <div id="product-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto max-h-64 mb-4 p-2 rounded-md bg-gray-800 border border-gray-600">
+                            <!-- Product cards will be dynamically loaded here -->
+                            <p class="text-gray-500 text-center col-span-full">No products available.</p>
+                        </div>
                     </div>
-                    <div class="mb-4" id="key-duration-selection-container">
+
+                    <div class="mb-4" id="key-duration-selection-container" style="display: none;">
                         <label for="key-duration-select" class="block text-gray-400 text-sm font-medium mb-2">Select Key Duration</label>
                         <select id="key-duration-select" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
                             </select>
@@ -184,46 +200,97 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        const productSelect = document.getElementById('product-select');
+        const productCardsContainer = document.getElementById('product-cards-container');
         const keyDurationSelect = document.getElementById('key-duration-select');
         const keyDurationSelectionContainer = document.getElementById('key-duration-selection-container');
         const quantityInput = document.getElementById('quantity-input');
         const buyKeyBtn = document.getElementById('buy-key-btn');
         const currentBalanceDisplay = document.getElementById('current-balance');
 
-        // Populate product select
-        productSelect.innerHTML = '<option value="">Select a product</option>';
-        dataStore.products.forEach(product => {
-            const option = document.createElement('option');
-            option.value = product.name;
-            option.textContent = `${product.name} (Stock: ${product.stock}, Price: $${product.price.toFixed(2)})`;
-            productSelect.appendChild(option);
-        });
+        let selectedProduct = null; // To store the currently selected product object
 
         const loggedInUserEmail = localStorage.getItem('loggedInUser');
-        const currentUser = dataStore.users.find(user => user.email === loggedInUserEmail);
+        let currentUser = dataStore.users.find(user => user.email === loggedInUserEmail); // Get a mutable reference
         if (currentUser) {
             currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
         }
 
+        // Function to render product cards
+        const renderProductCards = () => {
+            productCardsContainer.innerHTML = ''; // Clear existing cards
+            if (dataStore.products.length === 0) {
+                productCardsContainer.innerHTML = '<p class="text-gray-500 text-center col-span-full">No products available.</p>';
+                return;
+            }
+
+            dataStore.products.forEach(product => {
+                const productCard = document.createElement('div');
+                productCard.classList.add(
+                    'product-card',
+                    'bg-gray-700',
+                    'p-4',
+                    'rounded-lg',
+                    'shadow-md',
+                    'cursor-pointer',
+                    'hover:ring-2',
+                    'hover:ring-indigo-500',
+                    'transition-all',
+                    'duration-200',
+                    'flex',
+                    'items-center',
+                    'space-x-3'
+                );
+                productCard.dataset.productName = product.name; // Store product name for selection
+
+                // Checkmark/Exclamation icon based on stock
+                const iconSvg = product.stock > 0
+                    ? `<svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>`
+                    : `<svg class="w-6 h-6 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>`;
+
+                productCard.innerHTML = `
+                    ${iconSvg}
+                    <span class="text-white font-semibold text-lg">${product.name}</span>
+                    <span class="text-gray-400 text-sm ml-auto">Stock: ${product.stock}</span>
+                `;
+
+                productCardsContainer.appendChild(productCard);
+            });
+
+            // Add click listeners to newly rendered product cards
+            document.querySelectorAll('.product-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    // Remove 'selected' class from all cards
+                    document.querySelectorAll('.product-card').forEach(c => {
+                        c.classList.remove('ring-indigo-500', 'ring-4'); // Remove ring from previously selected
+                        c.classList.add('hover:ring-2'); // Re-add hover ring
+                    });
+
+                    // Add 'selected' class to the clicked card
+                    card.classList.add('ring-indigo-500', 'ring-4');
+                    card.classList.remove('hover:ring-2'); // Remove hover ring when selected
+
+                    const productName = card.dataset.productName;
+                    selectedProduct = dataStore.products.find(p => p.name === productName);
+                    updateKeyDurationOptions(); // Update duration dropdown based on selection
+                });
+            });
+        };
+
         // Function to update key duration options based on selected product
         const updateKeyDurationOptions = () => {
-            const selectedProductName = productSelect.value;
-            const selectedProduct = dataStore.products.find(p => p.name === selectedProductName);
-
             keyDurationSelect.innerHTML = '<option value="">Select key duration</option>';
-            keyDurationSelectionContainer.classList.add('hidden'); // Hide by default
+            keyDurationSelectionContainer.style.display = 'none'; // Hide by default
 
             if (selectedProduct && selectedProduct.keyLinks) {
                 const hasApiLinks = Object.keys(selectedProduct.keyLinks).some(key => selectedProduct.keyLinks[key]);
                 if (hasApiLinks) {
-                    keyDurationSelectionContainer.classList.remove('hidden');
+                    keyDurationSelectionContainer.style.display = 'block'; // Show if API links exist
                     for (const durationKey in selectedProduct.keyLinks) {
                         if (selectedProduct.keyLinks[durationKey]) { // Only add if API link exists
                             const option = document.createElement('option');
                             option.value = durationKey;
                             // Convert durationKey (e.g., '1_day') to display text (e.g., '1 Day')
-                            option.textContent = durationKey.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase());
+                            option.textContent = `${durationKey.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase())} ($${selectedProduct.keyPrices[durationKey].toFixed(2)})`;
                             keyDurationSelect.appendChild(option);
                         }
                     }
@@ -231,23 +298,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         };
 
-        // Event listener for product selection change
-        productSelect.addEventListener('change', updateKeyDurationOptions);
-
-        // Initial call to set up key duration options (if a product is pre-selected or on page load)
-        updateKeyDurationOptions();
-
+        // Initial render of product cards
+        renderProductCards();
 
         buyKeyBtn.addEventListener('click', () => {
-            const selectedProductName = productSelect.value;
-            const selectedKeyDuration = keyDurationSelect.value;
-            const quantity = parseInt(quantityInput.value);
-
-            if (!selectedProductName) {
+            if (!selectedProduct) {
                 showMessage('Please select a product.');
                 return;
             }
-            if (!selectedKeyDuration) {
+            const selectedKeyDuration = keyDurationSelect.value;
+            const quantity = parseInt(quantityInput.value);
+
+            if (Object.keys(selectedProduct.keyLinks).length > 0 && !selectedKeyDuration) {
                 showMessage('Please select a key duration.');
                 return;
             }
@@ -256,47 +318,78 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            const selectedProduct = dataStore.products.find(p => p.name === selectedProductName);
-
-            if (!selectedProduct) {
-                showMessage('Selected product not found.');
-                return;
-            }
             if (selectedProduct.stock < quantity) {
                 showMessage(`Not enough stock for ${selectedProduct.name}. Available: ${selectedProduct.stock}`);
                 return;
             }
 
-            const totalCost = selectedProduct.price * quantity; // Assuming price is per product, not per key duration type for simplicity
-            const currentUserIndex = dataStore.users.findIndex(user => user.email === loggedInUserEmail);
-            const currentUserData = dataStore.users[currentUserIndex];
+            let totalCost = 0;
+            let productDisplayName = selectedProduct.name;
+            let apiLinkToUse = '';
 
-            if (currentUserData.balance < totalCost) {
-                showMessage(`Insufficient balance. You need $${totalCost.toFixed(2)} but have $${currentUserData.balance.toFixed(2)}.`);
-                return;
+            if (selectedKeyDuration && selectedProduct.keyPrices && selectedProduct.keyPrices[selectedKeyDuration]) {
+                totalCost = selectedProduct.keyPrices[selectedKeyDuration] * quantity;
+                productDisplayName += ` (${selectedKeyDuration.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase())})`;
+                apiLinkToUse = selectedProduct.keyLinks[selectedKeyDuration];
+            } else {
+                // For products without specific key durations, use the main product price
+                totalCost = selectedProduct.price * quantity;
+                // If there are no key links, there's no API link to use for key generation
+                // The key generation will default to the placeholder
             }
 
-            // Get the specific API link for the selected duration
-            const apiLinkToUse = selectedProduct.keyLinks[selectedKeyDuration];
-            if (!apiLinkToUse) {
-                showMessage(`No API link found for ${selectedKeyDuration} of ${selectedProductName}.`);
+            console.log('--- Purchase Attempt ---');
+            console.log('User balance BEFORE deduction:', currentUser.balance);
+            console.log('Total cost:', totalCost);
+
+            if (currentUser.balance < totalCost) {
+                showMessage(`Insufficient balance. You need $${totalCost.toFixed(2)} but have $${currentUser.balance.toFixed(2)}.`);
                 return;
             }
 
             // Deduct balance immediately
-            currentUserData.balance -= totalCost;
-            saveDataToLocalStorage();
-            currentBalanceDisplay.textContent = `$${currentUserData.balance.toFixed(2)}`; // Update balance display
+            currentUser.balance -= totalCost;
+            console.log('User balance AFTER deduction:', currentUser.balance);
+            saveDataToLocalStorage(); // Save updated user data
+
+            // Re-fetch currentUser from dataStore after saving to ensure it's up-to-date
+            currentUser = dataStore.users.find(user => user.email === loggedInUserEmail);
+            if (currentUser) {
+                currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`; // Update balance display
+                document.getElementById('dashboard-wallet-balance') && (document.getElementById('dashboard-wallet-balance').textContent = `$${currentUser.balance.toFixed(2)}`);
+            }
+
 
             showMessage('Processing your order...');
             buyKeyBtn.disabled = true; // Disable button during processing
 
             // Simulate API call
             setTimeout(() => {
-                let generatedKey = `KEY-${selectedKeyDuration.toUpperCase()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`; // Placeholder key
+                let generatedKey = `SIMULATED-KEY-${crypto.randomUUID().split('-')[0].toUpperCase()}`; // More realistic placeholder key
 
-                // In a real scenario, you'd make an actual fetch() call to apiLinkToUse here.
-                // For this demo, we'll assume success for now. You could add logic for failure.
+                if (apiLinkToUse) {
+                    // In a real scenario, you'd make an actual fetch() call to apiLinkToUse here.
+                    // For this demo, we'll assume success for now.
+                    // Example of a real fetch call (would require a backend proxy):
+                    /*
+                    fetch(apiLinkToUse)
+                        .then(response => response.json())
+                        .then(data => {
+                            generatedKey = data.key; // Assuming the API returns a 'key' field
+                            // ... rest of success logic ...
+                        })
+                        .catch(error => {
+                            console.error('API call failed:', error);
+                            showMessage('Key generation failed. Please try again or contact support.');
+                            // Optionally refund balance here if API call failed after deduction
+                            currentUser.balance += totalCost;
+                            saveDataToLocalStorage();
+                            currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
+                            document.getElementById('dashboard-wallet-balance') && (document.getElementById('dashboard-wallet-balance').textContent = `$${currentUser.balance.toFixed(2)}`);
+                        });
+                    */
+                    generatedKey = `SIMULATED-API-KEY-${selectedKeyDuration.toUpperCase()}-${crypto.randomUUID().split('-')[0].toUpperCase()}`;
+                }
 
                 // Update product stock
                 selectedProduct.stock -= quantity;
@@ -304,20 +397,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Add order to user's orders with the generated key
                 const order = {
                     id: Date.now().toString().slice(-6),
-                    product: `${selectedProductName} (${selectedKeyDuration.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase())})`, // Include duration in product name
+                    product: productDisplayName,
                     quantity: quantity,
                     cost: totalCost,
                     date: new Date().toLocaleString(),
                     status: 'Completed',
                     key: generatedKey // Store the generated key
                 };
-                currentUserData.orders.push(order);
-                saveDataToLocalStorage(); // Save updated dataStore
+                currentUser.orders.push(order);
+                saveDataToLocalStorage(); // Save updated dataStore (users and products)
 
                 showMessage(`Successfully purchased ${quantity} of ${order.product} for $${totalCost.toFixed(2)}! Your key: ${generatedKey}`);
 
                 buyKeyBtn.disabled = false; // Re-enable button
-                renderBuyKeysPage(); // Re-render to update balance and product list
+                // Re-render relevant parts instead of entire page to avoid potential re-initialization issues
+                // We already updated currentBalanceDisplay, now ensure dashboard reflects it too
+                // renderBuyKeysPage(); // Removed full re-render here to avoid potential state resets
             }, 1500); // Simulate 1.5 second API call delay
         });
     };
@@ -436,11 +531,53 @@ document.addEventListener('DOMContentLoaded', () => {
         contentArea.innerHTML = `
             <div class="content-page">
                 <h1 class="text-3xl font-bold text-white mb-6">Manage Keys</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex items-center justify-center">
-                    <p class="text-gray-400 text-lg">Manage Keys content goes here.</p>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
+                    <div class="overflow-x-auto flex-1">
+                        <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
+                            <thead>
+                                <tr>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tl-lg">Product</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Key</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tr-lg">Purchased Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="manage-keys-table-body" class="divide-y divide-gray-700">
+                                <!-- Keys will be inserted here by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         `;
+
+        const manageKeysTableBody = document.getElementById('manage-keys-table-body');
+        const loggedInUserEmail = localStorage.getItem('loggedInUser');
+        const currentUser = dataStore.users.find(user => user.email === loggedInUserEmail);
+
+        manageKeysTableBody.innerHTML = ''; // Clear existing content
+
+        if (currentUser && currentUser.orders && currentUser.orders.length > 0) {
+            // Filter orders that have a key and sort them by date
+            const keys = currentUser.orders.filter(order => order.key).sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if (keys.length > 0) {
+                keys.forEach(order => {
+                    const row = manageKeysTableBody.insertRow();
+                    row.classList.add('text-gray-300', 'hover:bg-gray-700');
+                    row.innerHTML = `
+                        <td class="py-2 px-4">${order.product}</td>
+                        <td class="py-2 px-4 text-xs font-mono break-all">${order.key}</td>
+                        <td class="py-2 px-4 text-xs">${order.date}</td>
+                    `;
+                });
+            } else {
+                const row = manageKeysTableBody.insertRow();
+                row.innerHTML = `<td colspan="3" class="py-4 px-4 text-center text-gray-500">No keys purchased yet.</td>`;
+            }
+        } else {
+            const row = manageKeysTableBody.insertRow();
+            row.innerHTML = `<td colspan="3" class="py-4 px-4 text-center text-gray-500">No keys purchased yet.</td>`;
+        }
     };
 
     const renderSettingsPage = () => {
