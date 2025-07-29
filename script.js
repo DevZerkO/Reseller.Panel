@@ -183,8 +183,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button id="buy-key-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-auto">Buy Key(s)</button>
 
                     <div id="purchase-confirmation-area" class="mt-4 hidden flex flex-col items-center">
-                        <p class="text-yellow-400 text-md mb-4 text-center">Please go to your reseller ticket to complete the purchase.</p>
-                        <button id="proceed-to-purchase-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">Proceed to Purchase</button>
+                        <p class="text-yellow-400 text-md mb-4 text-center">Please go to your reseller ticket to receive your money.</p>
+                        <button id="buy-now-redirect-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">Buy Now</button>
                     </div>
                 </div>
             </div>
@@ -195,7 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const buyKeyBtn = document.getElementById('buy-key-btn');
         const currentBalanceDisplay = document.getElementById('current-balance');
         const purchaseConfirmationArea = document.getElementById('purchase-confirmation-area');
-        const proceedToPurchaseBtn = document.getElementById('proceed-to-purchase-btn');
+        const buyNowRedirectBtn = document.getElementById('buy-now-redirect-btn'); // Renamed from proceedToPurchaseBtn
 
         productSelect.innerHTML = '<option value="">Select a product</option>';
         dataStore.products.forEach(product => {
@@ -210,10 +210,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentUser) {
             currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
         }
-
-        // Store selected product and quantity temporarily
-        let selectedProductForPurchase = null;
-        let quantityForPurchase = 0;
 
         buyKeyBtn.addEventListener('click', () => {
             const selectedProductName = productSelect.value;
@@ -239,64 +235,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Store for later use by "Proceed to Purchase" button
-            selectedProductForPurchase = selectedProduct;
-            quantityForPurchase = quantity;
-
-            // Show the confirmation message and the "Proceed to Purchase" button
+            // Show the confirmation message and the "Buy Now" button
             purchaseConfirmationArea.classList.remove('hidden');
             buyKeyBtn.disabled = true; // Disable the initial buy button
             productSelect.disabled = true; // Disable product selection
             quantityInput.disabled = true; // Disable quantity input
         });
 
-        proceedToPurchaseBtn.addEventListener('click', () => {
-            if (!selectedProductForPurchase || quantityForPurchase === 0) {
-                showMessage('No purchase initiated. Please select a product and quantity first.');
-                return;
-            }
-
-            const totalCost = selectedProductForPurchase.price * quantityForPurchase;
-            const loggedInUserEmail = localStorage.getItem('loggedInUser');
-            const currentUserIndex = dataStore.users.findIndex(user => user.email === loggedInUserEmail);
-            const currentUser = dataStore.users[currentUserIndex];
-
-            if (!currentUser) {
-                showMessage('User not found. Please log in again.');
-                return;
-            }
-
-            if (currentUser.balance < totalCost) {
-                showMessage(`Insufficient balance. You need $${totalCost.toFixed(2)} but have $${currentUser.balance.toFixed(2)}.`);
-                // Reset UI if balance is insufficient
-                purchaseConfirmationArea.classList.add('hidden');
-                buyKeyBtn.disabled = false;
-                productSelect.disabled = false;
-                quantityInput.disabled = false;
-                return;
-            }
-
-            // Deduct balance
-            currentUser.balance -= totalCost;
-
-            // Update product stock
-            selectedProductForPurchase.stock -= quantityForPurchase;
-            saveDataToLocalStorage(); // Save updated dataStore
-
-            // Add order to user's orders
-            const order = {
-                id: Date.now().toString().slice(-6),
-                product: selectedProductForPurchase.name,
-                quantity: quantityForPurchase,
-                cost: totalCost,
-                date: new Date().toLocaleString(),
-                status: 'Completed'
-            };
-            currentUser.orders.push(order);
-            saveDataToLocalStorage(); // Save updated dataStore
-
-            showMessage(`Successfully purchased ${quantityForPurchase} of ${selectedProductForPurchase.name} for $${totalCost.toFixed(2)}.`);
-            renderBuyKeysPage(); // Re-render to update balance and product list
+        buyNowRedirectBtn.addEventListener('click', () => {
+            // Redirect to the specific Stripe payment link
+            window.location.href = 'https://buy.stripe.com/14AbJ283scPr52b85Kebu01';
+            // Note: Local balance deduction and order creation are removed here
+            // as payment and fulfillment are now handled externally by Stripe.
+            // Your backend webhook would be responsible for updating your internal records.
         });
     };
 
