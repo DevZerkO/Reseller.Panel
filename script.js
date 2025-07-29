@@ -181,11 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <input type="number" id="quantity-input" value="1" min="1" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
                     </div>
                     <button id="buy-key-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-auto">Buy Key(s)</button>
-
-                    <div id="purchase-confirmation-area" class="mt-4 hidden flex flex-col items-center">
-                        <p class="text-yellow-400 text-md mb-4 text-center">Please go to your reseller ticket to receive your money.</p>
-                        <button id="buy-now-redirect-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">Buy Now</button>
-                    </div>
                 </div>
             </div>
         `;
@@ -194,8 +189,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const quantityInput = document.getElementById('quantity-input');
         const buyKeyBtn = document.getElementById('buy-key-btn');
         const currentBalanceDisplay = document.getElementById('current-balance');
-        const purchaseConfirmationArea = document.getElementById('purchase-confirmation-area');
-        const buyNowRedirectBtn = document.getElementById('buy-now-redirect-btn'); // Renamed from proceedToPurchaseBtn
 
         productSelect.innerHTML = '<option value="">Select a product</option>';
         dataStore.products.forEach(product => {
@@ -235,19 +228,36 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Show the confirmation message and the "Buy Now" button
-            purchaseConfirmationArea.classList.remove('hidden');
-            buyKeyBtn.disabled = true; // Disable the initial buy button
-            productSelect.disabled = true; // Disable product selection
-            quantityInput.disabled = true; // Disable quantity input
-        });
+            const totalCost = selectedProduct.price * quantity;
+            const currentUserIndex = dataStore.users.findIndex(user => user.email === loggedInUserEmail);
+            const currentUserData = dataStore.users[currentUserIndex];
 
-        buyNowRedirectBtn.addEventListener('click', () => {
-            // Redirect to the specific Stripe payment link
-            window.location.href = 'https://buy.stripe.com/14AbJ283scPr52b85Kebu01';
-            // Note: Local balance deduction and order creation are removed here
-            // as payment and fulfillment are now handled externally by Stripe.
-            // Your backend webhook would be responsible for updating your internal records.
+            if (currentUserData.balance < totalCost) {
+                showMessage(`Insufficient balance. You need $${totalCost.toFixed(2)} but have $${currentUserData.balance.toFixed(2)}.`);
+                return;
+            }
+
+            // Deduct balance
+            currentUserData.balance -= totalCost;
+
+            // Update product stock
+            selectedProduct.stock -= quantity;
+            saveDataToLocalStorage(); // Save updated dataStore
+
+            // Add order to user's orders
+            const order = {
+                id: Date.now().toString().slice(-6),
+                product: selectedProductName,
+                quantity: quantity,
+                cost: totalCost,
+                date: new Date().toLocaleString(),
+                status: 'Completed'
+            };
+            currentUserData.orders.push(order);
+            saveDataToLocalStorage(); // Save updated dataStore
+
+            showMessage(`Successfully purchased ${quantity} of ${selectedProductName} for $${totalCost.toFixed(2)}.`);
+            renderBuyKeysPage(); // Re-render to update balance and product list
         });
     };
 
@@ -262,6 +272,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         <input type="number" id="amount-input" value="10.00" min="1.00" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
                     </div>
                     <button id="initiate-payment-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-auto">Initiate Payment</button>
+
+                    <div id="add-funds-confirmation-area" class="mt-4 hidden flex flex-col items-center">
+                        <p class="text-yellow-400 text-md mb-4 text-center">Please proceed to payment to add funds.</p>
+                        <button id="proceed-to-stripe-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">Proceed to Stripe</button>
+                    </div>
                 </div>
             </div>
         `;
@@ -269,6 +284,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const amountInput = document.getElementById('amount-input');
         const initiatePaymentBtn = document.getElementById('initiate-payment-btn');
         const addFundsCurrentBalanceDisplay = document.getElementById('add-funds-current-balance');
+        const addFundsConfirmationArea = document.getElementById('add-funds-confirmation-area');
+        const proceedToStripeBtn = document.getElementById('proceed-to-stripe-btn');
 
         const loggedInUserEmail = localStorage.getItem('loggedInUser');
         const currentUser = dataStore.users.find(user => user.email === loggedInUserEmail);
@@ -276,7 +293,11 @@ document.addEventListener('DOMContentLoaded', () => {
             addFundsCurrentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
         }
 
-        initiatePaymentBtn.addEventListener('click', async () => {
+        // Temporary storage for amount and user details for the second step
+        let amountToProcess = 0;
+        let userForFunds = null;
+
+        initiatePaymentBtn.addEventListener('click', () => {
             const amount = parseFloat(amountInput.value);
 
             if (isNaN(amount) || amount <= 0) {
@@ -289,7 +310,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            showMessage(`Initiating payment for $${amount.toFixed(2)}...`);
+            // Store values for the next step
+            amountToProcess = amount;
+            userForFunds = currentUser;
+
+            // Show the confirmation message and the "Proceed to Stripe" button
+            addFundsConfirmationArea.classList.remove('hidden');
+            initiatePaymentBtn.disabled = true; // Disable the initial button
+            amountInput.disabled = true; // Disable amount input
+        });
+
+        proceedToStripeBtn.addEventListener('click', async () => {
+            if (!userForFunds || amountToProcess === 0) {
+                showMessage('No amount specified for adding funds. Please enter an amount first.');
+                // Reset UI if no amount is set
+                addFundsConfirmationArea.classList.add('hidden');
+                initiatePaymentBtn.disabled = false;
+                amountInput.disabled = false;
+                return;
+            }
+
+            showMessage(`Initiating payment for $${amountToProcess.toFixed(2)}...`);
 
             try {
                 // IMPORTANT: Replace 'https://your-actual-backend-url.com' with your deployed backend URL.
@@ -302,8 +343,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         // 'Authorization': `Bearer ${localStorage.getItem('userAuthToken')}`
                     },
                     body: JSON.stringify({
-                        userEmail: currentUser.email,
-                        amount: amount,
+                        userEmail: userForFunds.email,
+                        amount: amountToProcess,
                         // Add success and cancel URLs for Stripe Checkout redirect
                         successUrl: window.location.origin + '/?payment=success', // Redirect back to your app with success param
                         cancelUrl: window.location.origin + '/?payment=cancelled' // Redirect back to your app with cancel param
@@ -317,10 +358,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     window.location.href = result.checkoutUrl;
                 } else {
                     showMessage(`Error initiating payment: ${result.error || 'Unknown error'}`);
+                    // Reset UI on error
+                    addFundsConfirmationArea.classList.add('hidden');
+                    initiatePaymentBtn.disabled = false;
+                    amountInput.disabled = false;
                 }
             } catch (error) {
                 console.error('Network or server error:', error);
                 showMessage('Could not connect to payment service. Please try again later.');
+                // Reset UI on network error
+                addFundsConfirmationArea.classList.add('hidden');
+                initiatePaymentBtn.disabled = false;
+                amountInput.disabled = false;
             }
         });
     };
