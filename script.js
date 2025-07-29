@@ -97,9 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 h-full">
                     <!-- Graph Placeholder (left, takes 2/3 width on large screens) -->
-                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 flex flex-col flex-grow">
+                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 flex flex-col flex-grow h-full">
                         <div class="flex justify-between items-center mb-4">
                             <p class="text-gray-400 text-sm">Last 24 Hours</p>
                             <p class="text-white text-lg font-bold">$0.00</p>
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <!-- Recent Orders Placeholder (right, takes 1/3 width on large screens) -->
-                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-1 flex flex-col flex-grow">
+                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-1 flex flex-col flex-grow h-full">
                         <h3 class="text-xl font-bold text-white mb-4">Recent Orders</h3>
                         <div id="dashboard-recent-orders" class="flex-1 overflow-y-auto">
                             <!-- Recent orders will be dynamically loaded here -->
@@ -421,7 +421,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderResellersPage = () => {
         contentArea.innerHTML = `
             <div class="content-page">
-                <h1 class="text-3xl font-bold text-white mb-6">Resellers</h1>
+                <h1 class="text-3xl font-bold text-white mb-6">Manage Users</h1>
                 <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col">
                     <div class="overflow-x-auto flex-1">
                         <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
@@ -433,8 +433,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tr-lg">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="resellers-table-body" class="divide-y divide-gray-700">
-                                <!-- Reseller rows will be inserted here by JavaScript -->
+                            <tbody id="users-table-body" class="divide-y divide-gray-700">
+                                <!-- User rows will be inserted here by JavaScript -->
                             </tbody>
                         </table>
                     </div>
@@ -442,35 +442,63 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        const resellersTableBody = document.getElementById('resellers-table-body');
+        const usersTableBody = document.getElementById('users-table-body');
 
         const renderTable = () => {
-            resellersTableBody.innerHTML = '';
+            usersTableBody.innerHTML = '';
             dataStore.users.forEach((user, index) => {
-                if (user.role === 'reseller') {
-                    const row = resellersTableBody.insertRow();
-                    row.classList.add('text-gray-300', 'hover:bg-gray-700');
-                    row.innerHTML = `
-                        <td class="py-2 px-4">${user.email}</td>
-                        <td class="py-2 px-4">${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</td>
-                        <td class="py-2 px-4">$${user.balance.toFixed(2)}</td>
-                        <td class="py-2 px-4">
-                            <button class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded-md delete-reseller-btn" data-email="${user.email}">Remove</button>
-                        </td>
-                    `;
+                // Do not allow admin to remove themselves or edit their own balance in this UI
+                if (user.email === ADMIN_USERNAME && localStorage.getItem('loggedInUserRole') === 'admin') {
+                    return;
                 }
+
+                const row = usersTableBody.insertRow();
+                row.classList.add('text-gray-300', 'hover:bg-gray-700');
+                row.innerHTML = `
+                    <td class="py-2 px-4">${user.email}</td>
+                    <td class="py-2 px-4">${user.role.charAt(0).toUpperCase() + user.role.slice(1)}</td>
+                    <td class="py-2 px-4">
+                        <input type="number" class="balance-input w-24 p-1 rounded-md bg-gray-800 text-white border border-gray-600" value="${user.balance.toFixed(2)}" data-email="${user.email}">
+                    </td>
+                    <td class="py-2 px-4 flex space-x-2">
+                        <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-1 px-2 rounded-md update-balance-btn" data-email="${user.email}">Update</button>
+                        <button class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded-md delete-user-btn" data-email="${user.email}">Remove</button>
+                    </td>
+                `;
             });
 
-            document.querySelectorAll('.delete-reseller-btn').forEach(button => {
+            document.querySelectorAll('.update-balance-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const emailToUpdate = event.target.dataset.email;
+                    const balanceInput = document.querySelector(`.balance-input[data-email="${emailToUpdate}"]`);
+                    const newBalance = parseFloat(balanceInput.value);
+
+                    if (isNaN(newBalance) || newBalance < 0) {
+                        showMessage('Please enter a valid non-negative balance.');
+                        return;
+                    }
+
+                    const userIndex = dataStore.users.findIndex(user => user.email === emailToUpdate);
+                    if (userIndex !== -1) {
+                        dataStore.users[userIndex].balance = newBalance;
+                        saveDataToLocalStorage();
+                        showMessage(`Balance for ${emailToUpdate} updated to $${newBalance.toFixed(2)}.`);
+                        renderTable(); // Re-render to show updated balance
+                    }
+                });
+            });
+
+            document.querySelectorAll('.delete-user-btn').forEach(button => {
                 button.addEventListener('click', (event) => {
                     const emailToDelete = event.target.dataset.email;
                     dataStore.users = dataStore.users.filter(user => user.email !== emailToDelete);
                     saveDataToLocalStorage();
+                    showMessage(`User ${emailToDelete} removed.`);
                     renderTable();
                 });
             });
         };
-        renderTable(); // Initial render for resellers table
+        renderTable(); // Initial render for users table
     };
 
     // --- Main Application Flow ---
@@ -512,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (role === 'admin') renderProductsPage();
                 else showMessage('Access Denied: You do not have permission to view this page.');
                 break;
-            case 'resellers':
+            case 'resellers': // Now handles 'Manage Users'
                 if (role === 'admin') renderResellersPage();
                 else showMessage('Access Denied: You do not have permission to view this page.');
                 break;
@@ -537,11 +565,18 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 link.classList.add('hidden');
             }
+            // Update "Resellers" link text to "Manage Users" if admin
+            if (link.dataset.page === 'resellers' && role === 'admin') {
+                link.innerHTML = `
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h2a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2m3-10h4m-4 4h4m-9-4h.01M7 16h.01"></path></svg>
+                    Manage Users
+                `;
+            }
         });
 
         // Set initial page based on role
         if (role === 'admin') {
-            navigateToPage('products', role); // Admin default to products
+            navigateToPage('resellers', role); // Admin default to Manage Users
         } else {
             navigateToPage('dashboard', role); // Reseller default to dashboard
         }
