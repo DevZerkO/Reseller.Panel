@@ -80,17 +80,14 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="content-page">
                 <h1 class="text-3xl font-bold text-white mb-6">Dashboard</h1>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 flex-shrink-0">
-                    <!-- Discount Card -->
                     <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col items-center justify-center">
                         <p class="text-gray-400 text-sm">Discount</p>
                         <p class="text-white text-3xl font-bold">50 %</p>
                     </div>
-                    <!-- Account Type Card -->
                     <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col items-center justify-center">
                         <p class="text-gray-400 text-sm">Account Type</p>
                         <p class="text-white text-3xl font-bold" id="dashboard-account-type-display">User</p>
                     </div>
-                    <!-- Your Wallet Card -->
                     <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col items-center justify-center">
                         <p class="text-gray-400 text-sm">Your Wallet</p>
                         <p class="text-white text-3xl font-bold" id="dashboard-wallet-balance">$0.00</p>
@@ -98,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-                    <!-- Graph Placeholder (left, takes 2/3 width on large screens) -->
                     <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 flex flex-col flex-grow">
                         <div class="flex justify-between items-center mb-4">
                             <p class="text-gray-400 text-sm">Last 24 Hours</p>
@@ -122,11 +118,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span>22:00</span>
                         </div>
                     </div>
-                    <!-- Recent Orders Placeholder (right, takes 1/3 width on large screens) -->
                     <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-1 flex flex-col flex-grow">
                         <h3 class="text-xl font-bold text-white mb-4">Recent Orders</h3>
                         <div id="dashboard-recent-orders" class="flex-1 overflow-y-auto">
-                            <!-- Recent orders will be dynamically loaded here -->
                             <p class="text-gray-400">No recent orders.</p>
                         </div>
                     </div>
@@ -155,6 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <p class="text-white font-semibold">${order.product} (x${order.quantity})</p>
                         <p class="text-gray-400 text-sm">Amount: $${order.cost.toFixed(2)}</p>
                         <p class="text-gray-400 text-xs">Date: ${order.date}</p>
+                        ${order.key ? `<p class="text-gray-300 text-xs mt-1">Key: <span class="font-mono break-all">${order.key}</span></p>` : ''}
                     `;
                     dashboardRecentOrders.appendChild(orderDiv);
                 });
@@ -173,8 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="mb-4">
                         <label for="product-select" class="block text-gray-400 text-sm font-medium mb-2">Select Product</label>
                         <select id="product-select" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                            <!-- Products will be loaded here dynamically -->
-                        </select>
+                            </select>
                     </div>
                     <div class="mb-4">
                         <label for="quantity-input" class="block text-gray-400 text-sm font-medium mb-2">Quantity</label>
@@ -237,27 +231,55 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Deduct balance
+            // Deduct balance immediately
             currentUserData.balance -= totalCost;
+            saveDataToLocalStorage();
+            currentBalanceDisplay.textContent = `$${currentUserData.balance.toFixed(2)}`; // Update balance display
 
-            // Update product stock
-            selectedProduct.stock -= quantity;
-            saveDataToLocalStorage(); // Save updated dataStore
+            showMessage('Processing your order...');
+            buyKeyBtn.disabled = true; // Disable button during processing
 
-            // Add order to user's orders
-            const order = {
-                id: Date.now().toString().slice(-6),
-                product: selectedProductName,
-                quantity: quantity,
-                cost: totalCost,
-                date: new Date().toLocaleString(),
-                status: 'Completed'
-            };
-            currentUserData.orders.push(order);
-            saveDataToLocalStorage(); // Save updated dataStore
+            // Simulate API call
+            setTimeout(() => {
+                let generatedKey = `KEY-${Math.random().toString(36).substr(2, 9).toUpperCase()}`; // Placeholder key
 
-            showMessage(`Successfully purchased ${quantity} of ${selectedProductName} for $${totalCost.toFixed(2)}.`);
-            renderBuyKeysPage(); // Re-render to update balance and product list
+                // In a real scenario, you'd make an actual fetch() call to selectedProduct.apiLink here.
+                // For this demo, we'll assume success for now. You could add logic for failure.
+
+                if (selectedProduct.apiLink) {
+                    // Simulate successful API call
+                    // For demonstration, we'll always succeed if there's an apiLink
+                    // In a real app, you'd check the actual API response for success/failure
+
+                    // Update product stock
+                    selectedProduct.stock -= quantity;
+
+                    // Add order to user's orders with the generated key
+                    const order = {
+                        id: Date.now().toString().slice(-6),
+                        product: selectedProductName,
+                        quantity: quantity,
+                        cost: totalCost,
+                        date: new Date().toLocaleString(),
+                        status: 'Completed',
+                        key: generatedKey // Store the generated key
+                    };
+                    currentUserData.orders.push(order);
+                    saveDataToLocalStorage(); // Save updated dataStore
+
+                    showMessage(`Successfully purchased ${quantity} of ${selectedProductName} for $${totalCost.toFixed(2)}! Your key: ${generatedKey}`);
+                } else {
+                    // This case should ideally not happen if products always have an apiLink
+                    // Or if they do not, they would be handled by a different purchase mechanism.
+                    showMessage('Product does not have an associated API link for key generation.');
+                    // Refund balance if no API link was found for a product meant to have one
+                    currentUserData.balance += totalCost;
+                    saveDataToLocalStorage();
+                }
+
+                buyKeyBtn.disabled = false; // Re-enable button
+                renderBuyKeysPage(); // Re-render to update balance and product list
+            }, 1500); // Simulate 1.5 second API call delay
         });
     };
 
@@ -336,11 +358,11 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Quantity</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Date</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Status</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Key</th>
                                 </tr>
                             </thead>
                             <tbody id="orders-table-body" class="divide-y divide-gray-700">
-                                <!-- Order rows will be inserted here by JavaScript -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -362,11 +384,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td class="py-2 px-4">${order.quantity}</td>
                     <td class="py-2 px-4 text-xs">${order.date}</td>
                     <td class="py-2 px-4">${order.status}</td>
+                    <td class="py-2 px-4 text-xs font-mono break-all">${order.key || 'N/A'}</td>
                 `;
             });
         } else {
             const row = ordersTableBody.insertRow();
-            row.innerHTML = `<td colspan="5" class="py-4 px-4 text-center text-gray-500">No orders yet.</td>`;
+            row.innerHTML = `<td colspan="6" class="py-4 px-4 text-center text-gray-500">No orders yet.</td>`;
         }
     };
 
@@ -401,6 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <input type="text" id="product-name-input" placeholder="Product Name" class="flex-1 p-2 rounded-md bg-gray-800 text-white border border-gray-600">
                         <input type="number" id="product-stock-input" placeholder="Stock" class="w-24 p-2 rounded-md bg-gray-800 text-white border border-gray-600">
                         <input type="number" id="product-price-input" placeholder="Price" step="0.01" class="w-24 p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                        <input type="text" id="product-api-link-input" placeholder="API Link (Optional)" class="flex-1 p-2 rounded-md bg-gray-800 text-white border border-gray-600">
                         <button id="add-product-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md">Add Product</button>
                     </div>
                     <div class="overflow-x-auto flex-1">
@@ -410,12 +434,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tl-lg">Product Name</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Stock</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Price</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">API Link</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="products-table-body" class="divide-y divide-gray-700">
-                                <!-- Product rows will be inserted here by JavaScript -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -425,6 +449,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const productNameInput = document.getElementById('product-name-input');
         const productStockInput = document.getElementById('product-stock-input');
         const productPriceInput = document.getElementById('product-price-input');
+        const productApiLinkInput = document.getElementById('product-api-link-input'); // New input
         const addProductBtn = document.getElementById('add-product-btn');
         const productsTableBody = document.getElementById('products-table-body');
 
@@ -439,6 +464,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <input type="number" class="product-stock-edit-input w-20 p-1 rounded-md bg-gray-800 text-white border border-gray-600" value="${product.stock}" data-index="${index}">
                     </td>
                     <td class="py-2 px-4">$${product.price.toFixed(2)}</td>
+                    <td class="py-2 px-4 text-xs break-all">${product.apiLink || 'N/A'}</td>
                     <td class="py-2 px-4 flex space-x-2">
                         <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-1 px-2 rounded-md update-product-stock-btn" data-index="${index}">Update Stock</button>
                         <button class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded-md delete-product-btn" data-index="${index}">Remove</button>
@@ -478,18 +504,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = productNameInput.value.trim();
             const stock = parseInt(productStockInput.value.trim());
             const price = parseFloat(productPriceInput.value.trim());
+            const apiLink = productApiLinkInput.value.trim(); // Get API Link
 
             if (!name || isNaN(stock) || stock < 0 || isNaN(price) || price < 0) {
                 showMessage('Please enter a valid product name, non-negative stock, and a valid price.');
                 return;
             }
 
-            dataStore.products.push({ name, stock, price });
+            dataStore.products.push({ name, stock, price, apiLink }); // Add apiLink to product object
             saveDataToLocalStorage();
             renderTable();
             productNameInput.value = '';
             productStockInput.value = '';
             productPriceInput.value = '';
+            productApiLinkInput.value = ''; // Clear API Link input
         });
         renderTable(); // Initial render for products table
     };
@@ -510,8 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </tr>
                             </thead>
                             <tbody id="users-table-body" class="divide-y divide-gray-700">
-                                <!-- User rows will be inserted here by JavaScript -->
-                            </tbody>
+                                </tbody>
                         </table>
                     </div>
                 </div>
@@ -760,6 +787,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load data from local storage into the dataStore
     loadDataFromLocalStorage();
+
+    // Initialize some default products if dataStore.products is empty
+    if (dataStore.products.length === 0) {
+        dataStore.products.push(
+            { name: 'Zero Day - Day Key', stock: 100, price: 3.50, apiLink: 'https://desync.mysrv.us/api/seller/keys/zeroday/1/3c7eb3b4de899d279d23d1b2cc546cb96561fec740678f697e52bf5eef21a8a9' },
+            { name: 'Zero Day - 7 Day Key', stock: 50, price: 13.00, apiLink: 'https://desync.mysrv.us/api/seller/keys/zeroday/7/3c7eb3b4de899d279d23d1b2cc546cb96561fec740678f697e52bf5eef21a8a9' },
+            { name: 'Zero Day - 30 Day Key', stock: 20, price: 25.50, apiLink: 'https://desync.mysrv.us/api/seller/keys/zeroday/30/3c7eb3b4de899d279d23d1b2cc546cb96561fec740678f697e52bf5eef21a8a9' },
+            { name: 'Example Product (No API)', stock: 10, price: 10.00, apiLink: '' } // Example of a product without an API link
+        );
+        saveDataToLocalStorage();
+    }
+
 
     // Populate login email field immediately on load if remembered
     const rememberedEmailOnLoad = getRememberedEmail();
