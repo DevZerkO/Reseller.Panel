@@ -241,29 +241,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Deduct balance
-            dataStore.users[currentUserIndex].balance -= totalCost;
+            // --- START Stripe Integration Simulation ---
+            showMessage(`Initiating purchase of ${quantity} x ${selectedProductName} for $${totalCost.toFixed(2)}.
+            In a real application, this would securely send data to your backend server
+            to create a Stripe invoice and redirect you for payment.`);
+            // --- END Stripe Integration Simulation ---
 
-            // Update product stock
+            // For demo purposes, we'll still update the local data store
+            // In a real app, this would only happen AFTER successful payment confirmation
+            // via a Stripe webhook to your backend.
+            dataStore.users[currentUserIndex].balance -= totalCost;
             selectedProduct.stock -= quantity;
             saveDataToLocalStorage(); // Save updated dataStore
 
-            // Add order to user's orders
+            // Add order to user's orders (for demo purposes)
             const order = {
                 id: Date.now().toString().slice(-6),
                 product: selectedProductName,
                 quantity: quantity,
                 cost: totalCost,
                 date: new Date().toLocaleString(),
-                status: 'Completed'
+                status: 'Pending Stripe Payment' // Status updated for clarity in demo
             };
             dataStore.users[currentUserIndex].orders.push(order);
             saveDataToLocalStorage(); // Save updated dataStore
 
-            showMessage(`Successfully purchased ${quantity} of ${selectedProductName} for $${totalCost.toFixed(2)}.`);
-            renderBuyKeysPage(); // Re-render to update balance and product list
-            // No need to explicitly call renderOrders or renderDashboard here,
-            // as navigation will handle re-rendering those pages when accessed.
+            // Re-render to update balance and product list, and show pending order
+            renderBuyKeysPage();
         });
     };
 
