@@ -180,6 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     <div class="mb-4">
                         <label class="block text-gray-400 text-sm font-medium mb-2">Select Product</label>
+                        <p class="text-gray-500 text-sm mb-2">Click a product card below to select it.</p>
                         <div id="product-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto max-h-64 mb-4 p-2 rounded-md bg-gray-800 border border-gray-600">
                             <!-- Product cards will be dynamically loaded here -->
                             <p class="text-gray-500 text-center col-span-full">No products available.</p>
@@ -217,6 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Function to render product cards
         const renderProductCards = () => {
+            console.log('Rendering product cards. Products in dataStore:', dataStore.products);
             productCardsContainer.innerHTML = ''; // Clear existing cards
             if (dataStore.products.length === 0) {
                 productCardsContainer.innerHTML = '<p class="text-gray-500 text-center col-span-full">No products available.</p>';
@@ -259,6 +261,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Add click listeners to newly rendered product cards
             document.querySelectorAll('.product-card').forEach(card => {
                 card.addEventListener('click', () => {
+                    console.log('Product card clicked:', card.dataset.productName);
                     // Remove 'selected' class from all cards
                     document.querySelectorAll('.product-card').forEach(c => {
                         c.classList.remove('ring-indigo-500', 'ring-4'); // Remove ring from previously selected
@@ -271,6 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     const productName = card.dataset.productName;
                     selectedProduct = dataStore.products.find(p => p.name === productName);
+                    console.log('Selected product set to:', selectedProduct);
                     updateKeyDurationOptions(); // Update duration dropdown based on selection
                 });
             });
@@ -278,11 +282,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Function to update key duration options based on selected product
         const updateKeyDurationOptions = () => {
+            console.log('updateKeyDurationOptions called. Current selectedProduct:', selectedProduct);
             keyDurationSelect.innerHTML = '<option value="">Select key duration</option>';
             keyDurationSelectionContainer.style.display = 'none'; // Hide by default
 
             if (selectedProduct && selectedProduct.keyLinks) {
                 const hasApiLinks = Object.keys(selectedProduct.keyLinks).some(key => selectedProduct.keyLinks[key]);
+                console.log('Selected product has keyLinks. hasApiLinks:', hasApiLinks);
                 if (hasApiLinks) {
                     keyDurationSelectionContainer.style.display = 'block'; // Show if API links exist
                     for (const durationKey in selectedProduct.keyLinks) {
@@ -292,14 +298,21 @@ document.addEventListener('DOMContentLoaded', () => {
                             // Convert durationKey (e.g., '1_day') to display text (e.g., '1 Day')
                             option.textContent = `${durationKey.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase())} ($${selectedProduct.keyPrices[durationKey].toFixed(2)})`;
                             keyDurationSelect.appendChild(option);
+                            console.log('Added duration option:', option.textContent);
                         }
                     }
+                } else {
+                    console.log('No valid API links found for selected product, keeping duration dropdown hidden.');
                 }
+            } else {
+                console.log('No product selected or selected product has no keyLinks, keeping duration dropdown hidden.');
             }
         };
 
         // Initial render of product cards
         renderProductCards();
+        // No initial call to updateKeyDurationOptions here for selectedProduct, as selectedProduct is null.
+        // It will be called on product card click. This is the intended behavior.
 
         buyKeyBtn.addEventListener('click', () => {
             if (!selectedProduct) {
@@ -353,9 +366,12 @@ document.addEventListener('DOMContentLoaded', () => {
             saveDataToLocalStorage(); // Save updated user data
 
             // Re-fetch currentUser from dataStore after saving to ensure it's up-to-date
+            // This is important because `currentUser` was a reference, and `saveDataToLocalStorage`
+            // might re-parse the data, making the old reference stale.
             currentUser = dataStore.users.find(user => user.email === loggedInUserEmail);
             if (currentUser) {
                 currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`; // Update balance display
+                // Also update dashboard wallet balance if dashboard is currently rendered
                 document.getElementById('dashboard-wallet-balance') && (document.getElementById('dashboard-wallet-balance').textContent = `$${currentUser.balance.toFixed(2)}`);
             }
 
@@ -706,13 +722,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 '7_day': productApiLink7DayInput.value.trim(),
                 '30_day': productApiLink30DayInput.value.trim()
             };
+            const keyPrices = { // Ensure keyPrices are also captured
+                '1_day': parseFloat(productPriceInput.value.trim()), // Assuming base price for 1-day for now
+                '7_day': parseFloat(productPriceInput.value.trim()) * 3, // Example multiplier
+                '30_day': parseFloat(productPriceInput.value.trim()) * 10 // Example multiplier
+            };
+            // NOTE: In a real scenario, you'd likely have separate input fields for each key duration's price.
+            // For now, I'm using the main product price input and multiplying it for demo purposes.
+            // If you want separate price inputs for each key duration, let me know.
+
 
             if (!name || isNaN(stock) || stock < 0 || isNaN(price) || price < 0) {
                 showMessage('Please enter a valid product name, non-negative stock, and a valid price.');
                 return;
             }
 
-            dataStore.products.push({ name, stock, price, keyLinks }); // Store keyLinks object
+            dataStore.products.push({ name, stock, price, keyLinks, keyPrices }); // Store keyLinks and keyPrices objects
             saveDataToLocalStorage();
             renderTable();
             productNameInput.value = '';
@@ -993,6 +1018,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Initialize some default products if dataStore.products is empty
     if (dataStore.products.length === 0) {
+        console.log('Initializing default products as dataStore.products is empty.');
         dataStore.products.push(
             {
                 name: 'Zero Day',
@@ -1018,6 +1044,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         );
         saveDataToLocalStorage();
+    } else {
+        console.log('Products already exist in localStorage, skipping default initialization.');
     }
 
 
