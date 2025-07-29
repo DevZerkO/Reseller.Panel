@@ -287,6 +287,9 @@ document.addEventListener('DOMContentLoaded', () => {
             keyDurationSelectionContainer.style.display = 'none'; // Hide by default
 
             if (selectedProduct && selectedProduct.keyLinks) {
+                console.log('selectedProduct.keyLinks:', selectedProduct.keyLinks); // NEW LOG
+                console.log('selectedProduct.keyPrices:', selectedProduct.keyPrices); // NEW LOG
+
                 const hasApiLinks = Object.keys(selectedProduct.keyLinks).some(key => selectedProduct.keyLinks[key]);
                 console.log('Selected product has keyLinks. hasApiLinks:', hasApiLinks);
                 if (hasApiLinks) {
@@ -295,8 +298,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (selectedProduct.keyLinks[durationKey]) { // Only add if API link exists
                             const option = document.createElement('option');
                             option.value = durationKey;
-                            // Convert durationKey (e.g., '1_day') to display text (e.g., '1 Day')
-                            option.textContent = `${durationKey.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase())} ($${selectedProduct.keyPrices[durationKey].toFixed(2)})`;
+                            // Ensure keyPrices[durationKey] exists before accessing
+                            const price = selectedProduct.keyPrices && selectedProduct.keyPrices[durationKey] !== undefined
+                                ? selectedProduct.keyPrices[durationKey].toFixed(2)
+                                : 'N/A'; // Fallback if price is missing
+                            option.textContent = `${durationKey.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase())} ($${price})`;
                             keyDurationSelect.appendChild(option);
                             console.log('Added duration option:', option.textContent);
                         }
