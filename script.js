@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
         }
 
-        buyKeyBtn.addEventListener('click', () => {
+        buyKeyBtn.addEventListener('click', async () => { // Made the function async
             const selectedProductName = productSelect.value;
             const quantity = parseInt(quantityInput.value);
 
@@ -218,6 +218,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const selectedProduct = dataStore.products.find(p => p.name === selectedProductName);
+            const loggedInUserEmail = localStorage.getItem('loggedInUser');
+            const currentUser = dataStore.users.find(user => user.email === loggedInUserEmail);
 
             if (!selectedProduct) {
                 showMessage('Selected product not found.');
@@ -227,47 +229,114 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessage(`Not enough stock for ${selectedProduct.name}. Available: ${selectedProduct.stock}`);
                 return;
             }
-
-            const totalCost = selectedProduct.price * quantity;
-            const currentUserIndex = dataStore.users.findIndex(user => user.email === loggedInUserEmail);
-
-            if (currentUserIndex === -1) {
+            if (!currentUser) {
                 showMessage('User not found. Please log in again.');
                 return;
             }
 
-            if (dataStore.users[currentUserIndex].balance < totalCost) {
-                showMessage(`Insufficient balance. You need $${totalCost.toFixed(2)} but have $${dataStore.users[currentUserIndex].balance.toFixed(2)}.`);
+            const totalCost = selectedProduct.price * quantity;
+
+            // --- Existing Purchase Logic (deduct from balance) ---
+            if (currentUser.balance < totalCost) {
+                showMessage(`Insufficient balance. You need $${totalCost.toFixed(2)} but have $${currentUser.balance.toFixed(2)}.`);
                 return;
             }
 
-            // --- START Stripe Integration Simulation ---
-            showMessage(`Initiating purchase of ${quantity} x ${selectedProductName} for $${totalCost.toFixed(2)}.
-            In a real application, this would securely send data to your backend server
-            to create a Stripe invoice and redirect you for payment.`);
-            // --- END Stripe Integration Simulation ---
+            // Deduct balance
+            currentUser.balance -= totalCost;
 
-            // For demo purposes, we'll still update the local data store
-            // In a real app, this would only happen AFTER successful payment confirmation
-            // via a Stripe webhook to your backend.
-            dataStore.users[currentUserIndex].balance -= totalCost;
+            // Update product stock
             selectedProduct.stock -= quantity;
             saveDataToLocalStorage(); // Save updated dataStore
 
-            // Add order to user's orders (for demo purposes)
+            // Add order to user's orders
             const order = {
                 id: Date.now().toString().slice(-6),
                 product: selectedProductName,
                 quantity: quantity,
                 cost: totalCost,
                 date: new Date().toLocaleString(),
-                status: 'Pending Stripe Payment' // Status updated for clarity in demo
+                status: 'Completed'
             };
-            dataStore.users[currentUserIndex].orders.push(order);
+            currentUser.orders.push(order);
             saveDataToLocalStorage(); // Save updated dataStore
 
-            // Re-render to update balance and product list, and show pending order
-            renderBuyKeysPage();
+            showMessage(`Successfully purchased ${quantity} of ${selectedProductName} for $${totalCost.toFixed(2)}.`);
+            renderBuyKeysPage(); // Re-render to update balance and product list
+        });
+    };
+
+    const renderAddFundsPage = () => {
+        contentArea.innerHTML = `
+            <div class="content-page">
+                <h1 class="text-3xl font-bold text-white mb-6">Add Funds</h1>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
+                    <p class="text-gray-400 text-lg mb-4">Your current balance: <span id="add-funds-current-balance" class="font-bold text-white">$0.00</span></p>
+                    <div class="mb-4">
+                        <label for="amount-input" class="block text-gray-400 text-sm font-medium mb-2">Amount to Add ($)</label>
+                        <input type="number" id="amount-input" value="10.00" min="1.00" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                    </div>
+                    <button id="initiate-payment-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-auto">Initiate Payment</button>
+                </div>
+            </div>
+        `;
+
+        const amountInput = document.getElementById('amount-input');
+        const initiatePaymentBtn = document.getElementById('initiate-payment-btn');
+        const addFundsCurrentBalanceDisplay = document.getElementById('add-funds-current-balance');
+
+        const loggedInUserEmail = localStorage.getItem('loggedInUser');
+        const currentUser = dataStore.users.find(user => user.email === loggedInUserEmail);
+        if (currentUser) {
+            addFundsCurrentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
+        }
+
+        initiatePaymentBtn.addEventListener('click', async () => {
+            const amount = parseFloat(amountInput.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                showMessage('Please enter a valid amount greater than zero.');
+                return;
+            }
+
+            if (!currentUser) {
+                showMessage('User not found. Please log in again.');
+                return;
+            }
+
+            showMessage(`Initiating payment for $${amount.toFixed(2)}...`);
+
+            try {
+                // IMPORTANT: Replace 'https://your-actual-backend-url.com' with your deployed backend URL.
+                // This endpoint will create a Stripe Checkout Session and return its URL.
+                const response = await fetch('https://your-actual-backend-url.com/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        // You might send an authorization token here if your backend requires it
+                        // 'Authorization': `Bearer ${localStorage.getItem('userAuthToken')}`
+                    },
+                    body: JSON.stringify({
+                        userEmail: currentUser.email,
+                        amount: amount,
+                        // Add success and cancel URLs for Stripe Checkout redirect
+                        successUrl: window.location.origin + '/?payment=success', // Redirect back to your app with success param
+                        cancelUrl: window.location.origin + '/?payment=cancelled' // Redirect back to your app with cancel param
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.checkoutUrl) {
+                    // Redirect user to Stripe Checkout page
+                    window.location.href = result.checkoutUrl;
+                } else {
+                    showMessage(`Error initiating payment: ${result.error || 'Unknown error'}`);
+                }
+            } catch (error) {
+                console.error('Network or server error:', error);
+                showMessage('Could not connect to payment service. Please try again later.');
+            }
         });
     };
 
@@ -551,6 +620,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 break;
             case 'buy-keys':
                 renderBuyKeysPage();
+                break;
+            case 'add-funds': // New page case
+                renderAddFundsPage();
                 break;
             case 'manage-orders':
                 renderManageOrdersPage();
