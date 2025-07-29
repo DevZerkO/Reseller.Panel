@@ -677,6 +677,25 @@ document.addEventListener('DOMContentLoaded', () => {
                             <input type="number" id="product-price-7-day" placeholder="7 Day Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
                             <input type="number" id="product-price-30-day" placeholder="30 Day Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
                         </div>
+                        <div class="col-span-2">
+                            <label for="product-image-url-input" class="block text-gray-400 text-sm font-medium mb-2">Image URL</label>
+                            <input type="text" id="product-image-url-input" placeholder="Product Image URL" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="product-downloader-link-input" class="block text-gray-400 text-sm font-medium mb-2">Downloader Link</label>
+                            <input type="text" id="product-downloader-link-input" placeholder="Downloader Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="product-instructions-link-input" class="block text-gray-400 text-sm font-medium mb-2">Instructions Link</label>
+                            <input type="text" id="product-instructions-link-input" placeholder="Instructions Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="product-status-select" class="block text-gray-400 text-sm font-medium mb-2">Status</label>
+                            <select id="product-status-select" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                                <option value="undetected">Undetected</option>
+                                <option value="detected">Detected</option>
+                            </select>
+                        </div>
                     </div>
                     <button id="add-product-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-4">Add Product</button>
 
@@ -690,9 +709,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">1 Day Price</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">7 Day Price</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">30 Day Price</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">1 Day API</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">7 Day API</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">30 Day API</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Image</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Downloader</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Instructions</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Status</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tr-lg">Actions</th>
                                 </tr>
                             </thead>
@@ -714,6 +734,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const productPrice1DayInput = document.getElementById('product-price-1-day');
         const productPrice7DayInput = document.getElementById('product-price-7-day');
         const productPrice30DayInput = document.getElementById('product-price-30-day');
+        // New feature inputs
+        const productImageURLInput = document.getElementById('product-image-url-input');
+        const productDownloaderLinkInput = document.getElementById('product-downloader-link-input');
+        const productInstructionsLinkInput = document.getElementById('product-instructions-link-input');
+        const productStatusSelect = document.getElementById('product-status-select');
+
 
         const addProductBtn = document.getElementById('add-product-btn');
         const productsTableBody = document.getElementById('products-table-body');
@@ -731,12 +757,23 @@ document.addEventListener('DOMContentLoaded', () => {
                         <input type="number" class="product-stock-edit-input w-20 p-1 rounded-md bg-gray-800 text-white border border-gray-600" value="${product.stock}" data-index="${index}">
                     </td>
                     <td class="py-2 px-4">$${product.price.toFixed(2)}</td>
-                    <td class="py-2 px-4">$${product.keyPrices?.['1_day']?.toFixed(2) || '0.00'}</td>
-                    <td class="py-2 px-4">$${product.keyPrices?.['7_day']?.toFixed(2) || '0.00'}</td>
-                    <td class="py-2 px-4">$${product.keyPrices?.['30_day']?.toFixed(2) || '0.00'}</td>
-                    <td class="py-2 px-4 text-xs break-all">${product.keyLinks?.['1_day'] || 'N/A'}</td>
-                    <td class="py-2 px-4 text-xs break-all">${product.keyLinks?.['7_day'] || 'N/A'}</td>
-                    <td class="py-2 px-4 text-xs break-all">${product.keyLinks?.['30_day'] || 'N/A'}</td>
+                    <td class="py-2 px-4">$${(product.keyPrices?.['1_day'] || 0).toFixed(2)}</td>
+                    <td class="py-2 px-4">$${(product.keyPrices?.['7_day'] || 0).toFixed(2)}</td>
+                    <td class="py-2 px-4">$${(product.keyPrices?.['30_day'] || 0).toFixed(2)}</td>
+                    <td class="py-2 px-4">
+                        ${product.imageUrl ? `<img src="${product.imageUrl}" alt="Product" class="w-10 h-auto rounded-md">` : 'N/A'}
+                    </td>
+                    <td class="py-2 px-4 text-xs break-all">
+                        ${product.downloaderLink ? `<a href="${product.downloaderLink}" target="_blank" class="text-indigo-400 hover:underline">Link</a>` : 'N/A'}
+                    </td>
+                    <td class="py-2 px-4 text-xs break-all">
+                        ${product.instructionsLink ? `<a href="${product.instructionsLink}" target="_blank" class="text-indigo-400 hover:underline">Link</a>` : 'N/A'}
+                    </td>
+                    <td class="py-2 px-4">
+                        <span class="font-bold ${product.status === 'undetected' ? 'text-green-500' : 'text-red-500'}">
+                            ${product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+                        </span>
+                    </td>
                     <td class="py-2 px-4 flex space-x-2">
                         <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-1 px-2 rounded-md update-product-stock-btn" data-index="${index}">Update Stock</button>
                         <button class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded-md delete-product-btn" data-index="${index}">Remove</button>
@@ -795,6 +832,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 '7_day': parseFloat(productPrice7DayInput.value.trim()) || 0, // Capture 7 Day Price
                 '30_day': parseFloat(productPrice30DayInput.value.trim()) || 0 // Capture 30 Day Price
             };
+            // Capture new feature values
+            const imageUrl = productImageURLInput.value.trim();
+            const downloaderLink = productDownloaderLinkInput.value.trim();
+            const instructionsLink = productInstructionsLinkInput.value.trim();
+            const status = productStatusSelect.value;
 
 
             if (!name || isNaN(stock) || stock < 0 || isNaN(price) || price < 0) {
@@ -821,22 +863,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 price,
                 keyLinks,
                 keyPrices,
-                imageUrl: 'https://placehold.co/120x80/374151/ffffff?text=Product', // Default image
-                downloaderLink: '',
-                instructionsLink: '',
-                status: 'undetected' // Default status
+                imageUrl, // Use captured image URL
+                downloaderLink, // Use captured downloader link
+                instructionsLink, // Use captured instructions link
+                status // Use captured status
             });
             saveDataToLocalStorage();
             renderTable();
+            // Clear all input fields after adding
             productNameInput.value = '';
             productStockInput.value = '';
             productPriceInput.value = '';
             productApiLink1DayInput.value = '';
             productApiLink7DayInput.value = '';
             productApiLink30DayInput.value = '';
-            productPrice1DayInput.value = ''; // Clear new price inputs
+            productPrice1DayInput.value = '';
             productPrice7DayInput.value = '';
             productPrice30DayInput.value = '';
+            productImageURLInput.value = '';
+            productDownloaderLinkInput.value = '';
+            productInstructionsLinkInput.value = '';
+            productStatusSelect.value = 'undetected'; // Reset to default
         });
         renderTable(); // Initial render for products table
     };
