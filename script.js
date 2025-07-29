@@ -287,9 +287,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const durations = ['1_day', '7_day', '30_day'];
                 durations.forEach(durationKey => {
                     if (selectedProduct.keyLinks[durationKey]) { // Only render if API link exists for this duration
-                        const price = selectedProduct.keyPrices && selectedProduct.keyPrices[durationKey] !== undefined
-                            ? selectedProduct.keyPrices[durationKey].toFixed(2)
-                            : 'N/A';
+                        // Ensure price is a number, defaulting to 0.00 if NaN or undefined
+                        const priceValue = selectedProduct.keyPrices && !isNaN(selectedProduct.keyPrices[durationKey])
+                            ? selectedProduct.keyPrices[durationKey]
+                            : 0.00;
+                        const price = priceValue.toFixed(2); // Format to 2 decimal places
+
                         const displayDuration = durationKey.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase());
 
                         const variantDiv = document.createElement('div');
@@ -728,9 +731,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         <input type="number" class="product-stock-edit-input w-20 p-1 rounded-md bg-gray-800 text-white border border-gray-600" value="${product.stock}" data-index="${index}">
                     </td>
                     <td class="py-2 px-4">$${product.price.toFixed(2)}</td>
-                    <td class="py-2 px-4">$${product.keyPrices?.['1_day']?.toFixed(2) || 'N/A'}</td>
-                    <td class="py-2 px-4">$${product.keyPrices?.['7_day']?.toFixed(2) || 'N/A'}</td>
-                    <td class="py-2 px-4">$${product.keyPrices?.['30_day']?.toFixed(2) || 'N/A'}</td>
+                    <td class="py-2 px-4">$${product.keyPrices?.['1_day']?.toFixed(2) || '0.00'}</td>
+                    <td class="py-2 px-4">$${product.keyPrices?.['7_day']?.toFixed(2) || '0.00'}</td>
+                    <td class="py-2 px-4">$${product.keyPrices?.['30_day']?.toFixed(2) || '0.00'}</td>
                     <td class="py-2 px-4 text-xs break-all">${product.keyLinks?.['1_day'] || 'N/A'}</td>
                     <td class="py-2 px-4 text-xs break-all">${product.keyLinks?.['7_day'] || 'N/A'}</td>
                     <td class="py-2 px-4 text-xs break-all">${product.keyLinks?.['30_day'] || 'N/A'}</td>
@@ -1132,7 +1135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (dataStore.users.some(user => user.email === email)) {
-            showMessage('User with this email/username already exists. Please login or use a different email.');
+            showMessage('User with this email/username already exists. Please login or or use a different email.');
             return;
         }
 
@@ -1279,4 +1282,3 @@ document.addEventListener('DOMContentLoaded', () => {
         showLogin();
     }
 });
-
