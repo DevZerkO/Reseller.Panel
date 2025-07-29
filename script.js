@@ -293,10 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
             addFundsCurrentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
         }
 
-        // Temporary storage for amount and user details for the second step
-        let amountToProcess = 0;
-        let userForFunds = null;
-
         initiatePaymentBtn.addEventListener('click', () => {
             const amount = parseFloat(amountInput.value);
 
@@ -310,67 +306,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Store values for the next step
-            amountToProcess = amount;
-            userForFunds = currentUser;
-
             // Show the confirmation message and the "Proceed to Stripe" button
             addFundsConfirmationArea.classList.remove('hidden');
             initiatePaymentBtn.disabled = true; // Disable the initial button
             amountInput.disabled = true; // Disable amount input
         });
 
-        proceedToStripeBtn.addEventListener('click', async () => {
-            if (!userForFunds || amountToProcess === 0) {
-                showMessage('No amount specified for adding funds. Please enter an amount first.');
-                // Reset UI if no amount is set
-                addFundsConfirmationArea.classList.add('hidden');
-                initiatePaymentBtn.disabled = false;
-                amountInput.disabled = false;
-                return;
-            }
-
-            showMessage(`Initiating payment for $${amountToProcess.toFixed(2)}...`);
-
-            try {
-                // IMPORTANT: Replace 'https://your-actual-backend-url.com' with your deployed backend URL.
-                // This endpoint will create a Stripe Checkout Session and return its URL.
-                const response = await fetch('https://your-actual-backend-url.com/create-checkout-session', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        // You might send an authorization token here if your backend requires it
-                        // 'Authorization': `Bearer ${localStorage.getItem('userAuthToken')}`
-                    },
-                    body: JSON.stringify({
-                        userEmail: userForFunds.email,
-                        amount: amountToProcess,
-                        // Add success and cancel URLs for Stripe Checkout redirect
-                        successUrl: window.location.origin + '/?payment=success', // Redirect back to your app with success param
-                        cancelUrl: window.location.origin + '/?payment=cancelled' // Redirect back to your app with cancel param
-                    })
-                });
-
-                const result = await response.json();
-
-                if (response.ok && result.checkoutUrl) {
-                    // Redirect user to Stripe Checkout page
-                    window.location.href = result.checkoutUrl;
-                } else {
-                    showMessage(`Error initiating payment: ${result.error || 'Unknown error'}`);
-                    // Reset UI on error
-                    addFundsConfirmationArea.classList.add('hidden');
-                    initiatePaymentBtn.disabled = false;
-                    amountInput.disabled = false;
-                }
-            } catch (error) {
-                console.error('Network or server error:', error);
-                showMessage('Could not connect to payment service. Please try again later.');
-                // Reset UI on network error
-                addFundsConfirmationArea.classList.add('hidden');
-                initiatePaymentBtn.disabled = false;
-                amountInput.disabled = false;
-            }
+        proceedToStripeBtn.addEventListener('click', () => {
+            // Redirect to the specific Stripe payment link
+            window.location.href = 'https://buy.stripe.com/14AbJ283scPr52b85Kebu01';
+            // Note: The amount entered in the input field on this page will NOT
+            // be passed to the Stripe link, as this is a fixed payment link.
+            // Any balance update would need to be handled by a Stripe webhook
+            // on your backend after the user completes payment on Stripe's site.
         });
     };
 
