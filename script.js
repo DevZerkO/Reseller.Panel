@@ -335,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Product</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Quantity</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Date</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tr-lg">Status</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Status</th>
                                 </tr>
                             </thead>
                             <tbody id="orders-table-body" class="divide-y divide-gray-700">
@@ -410,7 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tl-lg">Product Name</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Stock</th>
                                     <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Price</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tr-lg">Actions</th>
+                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="products-table-body" class="divide-y divide-gray-700">
@@ -630,9 +630,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to show the main panel and hide login
     const showPanel = (username, role) => {
-        loginContainer.classList.add('hidden');
-        mainPanel.classList.remove('hidden');
-        mainPanel.classList.add('flex');
+        loginContainer.classList.add('hidden'); // Hide login container
+        loginContainer.classList.remove('flex'); // Ensure flex is removed
+        mainPanel.classList.remove('hidden'); // Show main panel
+        mainPanel.classList.add('flex'); // Ensure main panel is flex for layout
+
         loggedInUsernameDisplay.textContent = username;
         userRoleDisplay.textContent = role.charAt(0).toUpperCase() + role.slice(1);
 
@@ -664,9 +666,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to show the login page and hide main panel
     const showLogin = () => {
-        mainPanel.classList.add('hidden');
-        mainPanel.classList.remove('flex');
-        loginContainer.classList.remove('hidden');
+        mainPanel.classList.add('hidden'); // Hide main panel
+        mainPanel.classList.remove('flex'); // Ensure flex is removed
+        loginContainer.classList.remove('hidden'); // Show login container
+        loginContainer.classList.add('flex'); // Ensure login container is flex for centering
+
         loginPasswordInput.value = ''; // Clear password on logout for security
         localStorage.removeItem('loggedInUser');
         localStorage.removeItem('loggedInUserRole');
@@ -777,6 +781,7 @@ document.addEventListener('DOMContentLoaded', () => {
             showLogin();
         }
     } else {
+        // Ensure only the login container is visible on initial load if no user is logged in
         showLogin();
     }
 });
