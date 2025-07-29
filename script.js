@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ADMIN_USERNAME = 'sylixadmin';
     // In a real application, the admin password would be securely hashed and stored
     // in a backend database, and authentication would be handled server-side.
-    // For this client-side demo, 'sylixadmin'
+    // For this client-side demo, 'sylixadmin' with any password will grant admin access.
 
     // --- DOM Elements ---
     const loginContainer = document.getElementById('login-container');
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
                     <!-- Graph Placeholder (left, takes 2/3 width on large screens) -->
-                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 flex flex-col">
+                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 flex flex-col flex-grow">
                         <div class="flex justify-between items-center mb-4">
                             <p class="text-gray-400 text-sm">Last 24 Hours</p>
                             <p class="text-white text-lg font-bold">$0.00</p>
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <!-- Recent Orders Placeholder (right, takes 1/3 width on large screens) -->
-                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-1 flex flex-col">
+                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-1 flex flex-col flex-grow">
                         <h3 class="text-xl font-bold text-white mb-4">Recent Orders</h3>
                         <div id="dashboard-recent-orders" class="flex-1 overflow-y-auto">
                             <!-- Recent orders will be dynamically loaded here -->
