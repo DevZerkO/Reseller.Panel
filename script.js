@@ -187,24 +187,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
 
-                    <div class="mb-4" id="key-duration-selection-container" style="display: none;">
-                        <label for="key-duration-select" class="block text-gray-400 text-sm font-medium mb-2">Select Key Duration</label>
-                        <select id="key-duration-select" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                            </select>
+                    <!-- New section for key variants -->
+                    <div id="key-variants-container" class="mb-4 hidden">
+                        <h3 class="text-xl font-bold text-white mb-4">Select Variants</h3>
+                        <!-- Variants will be dynamically loaded here -->
                     </div>
-                    <div class="mb-4">
-                        <label for="quantity-input" class="block text-gray-400 text-sm font-medium mb-2">Quantity</label>
-                        <input type="number" id="quantity-input" value="1" min="1" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                    </div>
+
                     <button id="buy-key-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-auto">Buy Key(s)</button>
                 </div>
             </div>
         `;
 
         const productCardsContainer = document.getElementById('product-cards-container');
-        const keyDurationSelect = document.getElementById('key-duration-select');
-        const keyDurationSelectionContainer = document.getElementById('key-duration-selection-container');
-        const quantityInput = document.getElementById('quantity-input');
+        const keyVariantsContainer = document.getElementById('key-variants-container'); // New element
         const buyKeyBtn = document.getElementById('buy-key-btn');
         const currentBalanceDisplay = document.getElementById('current-balance');
 
@@ -216,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
         }
 
-        // Function to render product cards
+        // Function to render product cards (remains largely the same)
         const renderProductCards = () => {
             console.log('Rendering product cards. Products in dataStore:', dataStore.products);
             productCardsContainer.innerHTML = ''; // Clear existing cards
@@ -275,86 +270,97 @@ document.addEventListener('DOMContentLoaded', () => {
                     const productName = card.dataset.productName;
                     selectedProduct = dataStore.products.find(p => p.name === productName);
                     console.log('Selected product set to:', selectedProduct);
-                    updateKeyDurationOptions(); // Update duration dropdown based on selection
+                    renderKeyVariants(); // Render variants based on selection
                 });
             });
         };
 
-        // Function to update key duration options based on selected product
-        const updateKeyDurationOptions = () => {
-            console.log('updateKeyDurationOptions called. Current selectedProduct:', selectedProduct);
-            keyDurationSelect.innerHTML = '<option value="">Select key duration</option>';
-            keyDurationSelectionContainer.style.display = 'none'; // Hide by default
+        // Function to render key variants
+        const renderKeyVariants = () => {
+            console.log('renderKeyVariants called. Current selectedProduct:', selectedProduct);
+            keyVariantsContainer.innerHTML = ''; // Clear existing variants
+            keyVariantsContainer.classList.add('hidden'); // Hide by default
 
-            if (selectedProduct && selectedProduct.keyLinks) {
-                console.log('selectedProduct.keyLinks:', selectedProduct.keyLinks); // NEW LOG
-                console.log('selectedProduct.keyPrices:', selectedProduct.keyPrices); // NEW LOG
+            if (selectedProduct && selectedProduct.keyLinks && Object.keys(selectedProduct.keyLinks).length > 0) {
+                keyVariantsContainer.classList.remove('hidden'); // Show if variants exist
 
-                const hasApiLinks = Object.keys(selectedProduct.keyLinks).some(key => selectedProduct.keyLinks[key]);
-                console.log('Selected product has keyLinks. hasApiLinks:', hasApiLinks);
-                if (hasApiLinks) {
-                    keyDurationSelectionContainer.style.display = 'block'; // Show if API links exist
-                    for (const durationKey in selectedProduct.keyLinks) {
-                        if (selectedProduct.keyLinks[durationKey]) { // Only add if API link exists
-                            const option = document.createElement('option');
-                            option.value = durationKey;
-                            // Ensure keyPrices[durationKey] exists before accessing
-                            const price = selectedProduct.keyPrices && selectedProduct.keyPrices[durationKey] !== undefined
-                                ? selectedProduct.keyPrices[durationKey].toFixed(2)
-                                : 'N/A'; // Fallback if price is missing
-                            option.textContent = `${durationKey.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase())} ($${price})`;
-                            keyDurationSelect.appendChild(option);
-                            console.log('Added duration option:', option.textContent);
-                        }
+                const durations = ['1_day', '7_day', '30_day'];
+                durations.forEach(durationKey => {
+                    if (selectedProduct.keyLinks[durationKey]) { // Only render if API link exists for this duration
+                        const price = selectedProduct.keyPrices && selectedProduct.keyPrices[durationKey] !== undefined
+                            ? selectedProduct.keyPrices[durationKey].toFixed(2)
+                            : 'N/A';
+                        const displayDuration = durationKey.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase());
+
+                        const variantDiv = document.createElement('div');
+                        variantDiv.classList.add('flex', 'items-center', 'justify-between', 'mb-3', 'py-2', 'px-3', 'bg-gray-800', 'rounded-md', 'shadow-sm');
+                        variantDiv.innerHTML = `
+                            <div>
+                                <p class="text-white font-semibold text-lg">${displayDuration}</p>
+                                <p class="text-gray-400 text-sm">$${price} / key</p>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <button class="variant-qty-btn bg-gray-600 hover:bg-gray-500 text-white font-bold py-1 px-3 rounded-md" data-action="decrement" data-duration="${durationKey}">-</button>
+                                <input type="number" class="variant-qty-input w-16 text-center p-1 rounded-md bg-gray-900 text-white border border-gray-600" value="0" min="0" data-duration="${durationKey}">
+                                <button class="variant-qty-btn bg-gray-600 hover:bg-gray-500 text-white font-bold py-1 px-3 rounded-md" data-action="increment" data-duration="${durationKey}">+</button>
+                            </div>
+                        `;
+                        keyVariantsContainer.appendChild(variantDiv);
                     }
-                } else {
-                    console.log('No valid API links found for selected product, keeping duration dropdown hidden.');
-                }
-            } else {
-                console.log('No product selected or selected product has no keyLinks, keeping duration dropdown hidden.');
+                });
+
+                // Add event listeners for quantity buttons
+                keyVariantsContainer.querySelectorAll('.variant-qty-btn').forEach(button => {
+                    button.addEventListener('click', (event) => {
+                        const durationKey = event.target.dataset.duration;
+                        const action = event.target.dataset.action;
+                        const input = keyVariantsContainer.querySelector(`.variant-qty-input[data-duration="${durationKey}"]`);
+                        let currentValue = parseInt(input.value);
+
+                        if (action === 'increment') {
+                            currentValue++;
+                        } else if (action === 'decrement') {
+                            currentValue = Math.max(0, currentValue - 1); // Don't go below zero
+                        }
+                        input.value = currentValue;
+                    });
+                });
             }
         };
 
         // Initial render of product cards
         renderProductCards();
-        // No initial call to updateKeyDurationOptions here for selectedProduct, as selectedProduct is null.
-        // It will be called on product card click. This is the intended behavior.
 
         buyKeyBtn.addEventListener('click', async () => { // Made async to use await
             if (!selectedProduct) {
                 showMessage('Please select a product.');
                 return;
             }
-            const selectedKeyDuration = keyDurationSelect.value;
-            const quantity = parseInt(quantityInput.value);
 
-            if (Object.keys(selectedProduct.keyLinks).length > 0 && !selectedKeyDuration) {
-                showMessage('Please select a key duration.');
-                return;
-            }
-            if (isNaN(quantity) || quantity <= 0) {
-                showMessage('Please enter a valid quantity.');
-                return;
-            }
-
-            if (selectedProduct.stock < quantity) {
-                showMessage(`Not enough stock for ${selectedProduct.name}. Available: ${selectedProduct.stock}`);
-                return;
-            }
-
+            const purchasedItems = [];
             let totalCost = 0;
-            let productDisplayName = selectedProduct.name;
-            let apiLinkToUse = '';
 
-            if (selectedKeyDuration && selectedProduct.keyPrices && selectedProduct.keyPrices[selectedKeyDuration]) {
-                totalCost = selectedProduct.keyPrices[selectedKeyDuration] * quantity;
-                productDisplayName += ` (${selectedKeyDuration.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase())})`;
-                apiLinkToUse = selectedProduct.keyLinks[selectedKeyDuration];
-            } else {
-                // For products without specific key durations, use the main product price
-                totalCost = selectedProduct.price * quantity;
-                // If there are no key links, there's no API link to use for key generation
-                // The key generation will default to the placeholder
+            const variantInputs = keyVariantsContainer.querySelectorAll('.variant-qty-input');
+            for (const input of variantInputs) {
+                const durationKey = input.dataset.duration;
+                const quantity = parseInt(input.value);
+
+                if (quantity > 0) {
+                    const pricePerKey = selectedProduct.keyPrices[durationKey];
+                    if (isNaN(pricePerKey)) {
+                        showMessage(`Price not defined for ${durationKey.replace('_', ' ')} keys.`);
+                        return; // Stop if price is invalid
+                    }
+
+                    const itemCost = pricePerKey * quantity;
+                    totalCost += itemCost;
+                    purchasedItems.push({ durationKey, quantity, pricePerKey, itemCost });
+                }
+            }
+
+            if (purchasedItems.length === 0) {
+                showMessage('Please select a quantity for at least one key variant.');
+                return;
             }
 
             console.log('--- Purchase Attempt ---');
@@ -381,69 +387,86 @@ document.addEventListener('DOMContentLoaded', () => {
             showMessage('Processing your order...');
             buyKeyBtn.disabled = true; // Disable button during processing
 
-            // --- START Cloudflare Worker Integration ---
-            // IMPORTANT: Replaced with your actual Worker URL.
             const CLOUDFLARE_WORKER_URL = 'https://still-bush-5b4e.infiniteggpaypal.workers.dev/'; // Your deployed Worker URL
+            let purchaseSuccessful = true;
+            let keysGenerated = [];
 
-            try {
-                const response = await fetch(CLOUDFLARE_WORKER_URL, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        productName: selectedProduct.name,
-                        duration: selectedKeyDuration
-                    })
-                });
+            for (const item of purchasedItems) {
+                const { durationKey, quantity, pricePerKey, itemCost } = item;
+                const productDisplayName = `${selectedProduct.name} (${durationKey.replace('_', ' ').replace(/\b\w/g, char => char.toUpperCase())})`;
 
-                const result = await response.json();
+                for (let i = 0; i < quantity; i++) { // Loop for each key in the quantity
+                    try {
+                        const response = await fetch(CLOUDFLARE_WORKER_URL, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                productName: selectedProduct.name,
+                                duration: durationKey
+                            })
+                        });
 
-                if (!response.ok || !result.success) {
-                    // Handle errors returned by the Worker
-                    console.error('Error from Cloudflare Worker:', result.error || 'Unknown error');
-                    showMessage(`Purchase failed: ${result.error || 'An unknown error occurred.'}`);
+                        const result = await response.json();
 
-                    // Refund balance if key generation failed after deduction
-                    currentUser.balance += totalCost;
-                    saveDataToLocalStorage();
-                    currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
-                    document.getElementById('dashboard-wallet-balance') && (document.getElementById('dashboard-wallet-balance').textContent = `$${currentUser.balance.toFixed(2)}`);
-                    return;
+                        if (!response.ok || !result.success) {
+                            console.error(`Error from Cloudflare Worker for ${productDisplayName} (key ${i+1}/${quantity}):`, result.error || 'Unknown error');
+                            showMessage(`Failed to get key for ${productDisplayName} (item ${i+1}). ${result.error || 'An unknown error occurred.'}`);
+                            purchaseSuccessful = false;
+                            // Do not refund here, refund will happen at the end if any purchase fails
+                            break; // Stop processing further items if one fails
+                        }
+
+                        const realKey = result.key; // Get the real key from the Worker's response
+                        keysGenerated.push({ productDisplayName, realKey, quantity: 1, itemCost: pricePerKey, durationKey }); // Store each key individually
+
+                    } catch (error) {
+                        console.error(`Network or unexpected error calling Cloudflare Worker for ${productDisplayName} (key ${i+1}/${quantity}):`, error);
+                        showMessage(`Network error for ${productDisplayName} (item ${i+1}).`);
+                        purchaseSuccessful = false;
+                        break; // Stop processing further items if network error
+                    }
                 }
+                if (!purchaseSuccessful) break; // Break outer loop if any inner loop failed
+            }
 
-                const realKey = result.key; // Get the real key from the Worker's response
+            if (purchaseSuccessful) {
+                let allKeysMessage = 'Successfully purchased! Your keys:\n';
+                for (const keyInfo of keysGenerated) {
+                    // Update product stock (still client-side for this demo, but ideally also backend)
+                    // Find the actual product in dataStore to update its stock
+                    const productInStore = dataStore.products.find(p => p.name === selectedProduct.name);
+                    if (productInStore) {
+                        productInStore.stock -= keyInfo.quantity; // keyInfo.quantity will be 1 here
+                    }
 
-                // Update product stock (still client-side for this demo, but ideally also backend)
-                selectedProduct.stock -= quantity;
+                    // Add order to user's orders
+                    const order = {
+                        id: Date.now().toString().slice(-6),
+                        product: keyInfo.productDisplayName,
+                        quantity: keyInfo.quantity, // This will be 1 for each individual key
+                        cost: keyInfo.itemCost, // This will be the price per key
+                        date: new Date().toLocaleString(),
+                        status: 'Completed',
+                        key: keyInfo.realKey // Store the real key
+                    };
+                    currentUser.orders.push(order);
+                    allKeysMessage += `${keyInfo.productDisplayName}: ${keyInfo.realKey}\n`;
+                }
+                saveDataToLocalStorage(); // Save updated dataStore after all successful purchases
 
-                // Add order to user's orders with the REAL generated key
-                const order = {
-                    id: Date.now().toString().slice(-6),
-                    product: productDisplayName,
-                    quantity: quantity,
-                    cost: totalCost,
-                    date: new Date().toLocaleString(),
-                    status: 'Completed',
-                    key: realKey // Store the real key
-                };
-                currentUser.orders.push(order);
-                saveDataToLocalStorage(); // Save updated dataStore
-
-                showMessage(`Successfully purchased ${quantity} of ${order.product} for $${totalCost.toFixed(2)}! Your key: ${realKey}`);
-
-            } catch (error) {
-                console.error('Network or unexpected error calling Cloudflare Worker:', error);
-                showMessage(`Purchase failed: Network error or unexpected response.`);
-                // Refund balance for network errors too
+                showMessage(allKeysMessage);
+            } else {
+                // If any part of the purchase failed, refund the total cost
                 currentUser.balance += totalCost;
                 saveDataToLocalStorage();
                 currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
                 document.getElementById('dashboard-wallet-balance') && (document.getElementById('dashboard-wallet-balance').textContent = `$${currentUser.balance.toFixed(2)}`);
-            } finally {
-                buyKeyBtn.disabled = false; // Re-enable button
+                showMessage('Some purchases failed. Funds have been refunded.');
             }
-            // --- END Cloudflare Worker Integration ---
+            buyKeyBtn.disabled = false; // Re-enable button
+            renderKeyVariants(); // Re-render variants to reset quantities to 0
         });
     };
 
@@ -698,7 +721,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const row = productsTableBody.insertRow();
                 row.classList.add('text-gray-300', 'hover:bg-gray-700');
                 row.innerHTML = `
-                    <td class="py-2 px-4">${product.name}</td>
+                    <td class="py-2 px-4">
+                        <a href="#" class="text-indigo-400 hover:underline product-name-link" data-product-name="${product.name}">${product.name}</a>
+                    </td>
                     <td class="py-2 px-4">
                         <input type="number" class="product-stock-edit-input w-20 p-1 rounded-md bg-gray-800 text-white border border-gray-600" value="${product.stock}" data-index="${index}">
                     </td>
@@ -742,6 +767,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderTable();
                 });
             });
+
+            // Add event listener for product name links
+            document.querySelectorAll('.product-name-link').forEach(link => {
+                link.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    const productName = event.target.dataset.productName;
+                    renderEditProductPage(productName);
+                });
+            });
         };
 
         addProductBtn.addEventListener('click', () => {
@@ -778,7 +812,17 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
 
-            dataStore.products.push({ name, stock, price, keyLinks, keyPrices }); // Store keyLinks and keyPrices objects
+            dataStore.products.push({
+                name,
+                stock,
+                price,
+                keyLinks,
+                keyPrices,
+                imageUrl: 'https://placehold.co/120x80/374151/ffffff?text=Product', // Default image
+                downloaderLink: '',
+                instructionsLink: '',
+                status: 'undetected' // Default status
+            });
             saveDataToLocalStorage();
             renderTable();
             productNameInput.value = '';
@@ -793,6 +837,104 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         renderTable(); // Initial render for products table
     };
+
+    // NEW: Function to render the product editing page
+    const renderEditProductPage = (productName) => {
+        const product = dataStore.products.find(p => p.name === productName);
+        if (!product) {
+            showMessage('Product not found.');
+            navigateToPage('products', 'admin'); // Go back to products list
+            return;
+        }
+
+        contentArea.innerHTML = `
+            <div class="content-page">
+                <h1 class="text-3xl font-bold text-white mb-6">Edit Product: ${product.name}</h1>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col">
+                    <div class="flex items-center mb-6">
+                        <img id="product-edit-image-preview" src="${product.imageUrl || 'https://placehold.co/120x80/374151/ffffff?text=Product'}" alt="Product Image" class="w-32 h-20 object-cover rounded-md mr-4 border border-gray-600">
+                        <div>
+                            <label for="product-image-url-input" class="block text-gray-400 text-sm font-medium mb-2">Image URL</label>
+                            <input type="text" id="product-image-url-input" value="${product.imageUrl || ''}" placeholder="Image URL" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="product-edit-downloader-link" class="block text-gray-400 text-sm font-medium mb-2">Downloader Link</label>
+                            <input type="text" id="product-edit-downloader-link" value="${product.downloaderLink || ''}" placeholder="Downloader Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                        </div>
+                        <div>
+                            <label for="product-edit-instructions-link" class="block text-gray-400 text-sm font-medium mb-2">Instructions Link</label>
+                            <input type="text" id="product-edit-instructions-link" value="${product.instructionsLink || ''}" placeholder="Instructions Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                        </div>
+                        <div class="col-span-2 flex items-center">
+                            <input type="checkbox" id="product-edit-status-toggle" class="h-5 w-5 text-indigo-600 rounded border-gray-600 focus:ring-indigo-500" ${product.status === 'undetected' ? 'checked' : ''}>
+                            <label for="product-edit-status-toggle" class="ml-2 text-gray-400 text-sm font-medium">Undetected</label>
+                            <span id="product-status-display" class="ml-4 text-lg font-bold ${product.status === 'undetected' ? 'text-green-500' : 'text-red-500'}">
+                                ${product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-end space-x-4 mt-6">
+                        <button id="back-to-products-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md">Back to Products</button>
+                        <button id="save-product-changes-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md">Save Changes</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        const productImageURLInput = document.getElementById('product-image-url-input');
+        const productImagePreview = document.getElementById('product-edit-image-preview');
+        const productDownloaderLinkInput = document.getElementById('product-edit-downloader-link');
+        const productInstructionsLinkInput = document.getElementById('product-edit-instructions-link');
+        const productStatusToggle = document.getElementById('product-edit-status-toggle');
+        const productStatusDisplay = document.getElementById('product-status-display');
+        const saveProductChangesBtn = document.getElementById('save-product-changes-btn');
+        const backToProductsBtn = document.getElementById('back-to-products-btn');
+
+        // Update image preview dynamically
+        productImageURLInput.addEventListener('input', () => {
+            productImagePreview.src = productImageURLInput.value || 'https://placehold.co/120x80/374151/ffffff?text=Product';
+        });
+
+        // Update status display dynamically
+        productStatusToggle.addEventListener('change', () => {
+            if (productStatusToggle.checked) {
+                productStatusDisplay.textContent = 'Undetected';
+                productStatusDisplay.classList.remove('text-red-500');
+                productStatusDisplay.classList.add('text-green-500');
+            } else {
+                productStatusDisplay.textContent = 'Detected';
+                productStatusDisplay.classList.remove('text-green-500');
+                productStatusDisplay.classList.add('text-red-500');
+            }
+        });
+
+
+        saveProductChangesBtn.addEventListener('click', () => {
+            const productIndex = dataStore.products.findIndex(p => p.name === productName);
+            if (productIndex === -1) {
+                showMessage('Error: Product not found for saving.');
+                return;
+            }
+
+            dataStore.products[productIndex].imageUrl = productImageURLInput.value.trim();
+            dataStore.products[productIndex].downloaderLink = productDownloaderLinkInput.value.trim();
+            dataStore.products[productIndex].instructionsLink = productInstructionsLinkInput.value.trim();
+            dataStore.products[productIndex].status = productStatusToggle.checked ? 'undetected' : 'detected';
+
+            saveDataToLocalStorage();
+            showMessage(`Product "${product.name}" updated successfully!`);
+            navigateToPage('products', 'admin'); // Go back to products list after saving
+        });
+
+        backToProductsBtn.addEventListener('click', () => {
+            navigateToPage('products', 'admin');
+        });
+    };
+
 
     const renderResellersPage = () => {
         contentArea.innerHTML = `
@@ -1077,19 +1219,37 @@ document.addEventListener('DOMContentLoaded', () => {
                     '1_day': 3.50,
                     '7_day': 13.00,
                     '30_day': 25.50
-                }
+                },
+                imageUrl: 'https://placehold.co/120x80/374151/ffffff?text=ZeroDay', // Example image
+                downloaderLink: 'https://example.com/zeroday-downloader',
+                instructionsLink: 'https://example.com/zeroday-instructions',
+                status: 'undetected' // Default status
             },
             {
                 name: 'Example Product (No API Keys)',
                 stock: 10,
                 price: 10.00,
                 keyLinks: {}, // Empty object for products without API keys
-                keyPrices: {}
+                keyPrices: {},
+                imageUrl: 'https://placehold.co/120x80/374151/ffffff?text=Example',
+                downloaderLink: '',
+                instructionsLink: '',
+                status: 'detected' // Default status
             }
         );
         saveDataToLocalStorage();
     } else {
         console.log('Products already exist in localStorage, skipping default initialization.');
+        // Ensure existing products have new fields, or add them with defaults
+        dataStore.products.forEach(product => {
+            if (product.imageUrl === undefined) product.imageUrl = 'https://placehold.co/120x80/374151/ffffff?text=Product';
+            if (product.downloaderLink === undefined) product.downloaderLink = '';
+            if (product.instructionsLink === undefined) product.instructionsLink = '';
+            if (product.status === undefined) product.status = 'undetected'; // Default to undetected
+            if (product.keyPrices === undefined) product.keyPrices = {}; // Ensure keyPrices exists
+            if (product.keyLinks === undefined) product.keyLinks = {}; // Ensure keyLinks exists
+        });
+        saveDataToLocalStorage(); // Save any updates to existing products
     }
 
 
