@@ -630,6 +630,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to show the main panel and hide login
     const showPanel = (username, role) => {
+        console.log("showPanel called. Showing main panel."); // Debug log
         loginContainer.classList.add('hidden'); // Hide login container
         loginContainer.classList.remove('flex'); // Ensure flex is removed
         mainPanel.classList.remove('hidden'); // Show main panel
@@ -666,6 +667,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Function to show the login page and hide main panel
     const showLogin = () => {
+        console.log("showLogin called. Showing login container."); // Debug log
         mainPanel.classList.add('hidden'); // Hide main panel
         mainPanel.classList.remove('flex'); // Ensure flex is removed
         loginContainer.classList.remove('hidden'); // Show login container
