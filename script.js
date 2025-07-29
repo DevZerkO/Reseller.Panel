@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const ADMIN_USERNAME = 'sylixadmin';
     // In a real application, the admin password would be securely hashed and stored
     // in a backend database, and authentication would be handled server-side.
-    // For this client-side demo, 'sylixadmin' with any password will grant admin access.
+    // For this client-side demo, 'sylixadmin'
 
     // --- DOM Elements ---
     const loginContainer = document.getElementById('login-container');
