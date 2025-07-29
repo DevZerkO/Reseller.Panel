@@ -97,9 +97,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 h-full">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
                     <!-- Graph Placeholder (left, takes 2/3 width on large screens) -->
-                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 flex flex-col flex-grow h-full">
+                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 flex flex-col flex-grow">
                         <div class="flex justify-between items-center mb-4">
                             <p class="text-gray-400 text-sm">Last 24 Hours</p>
                             <p class="text-white text-lg font-bold">$0.00</p>
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     <!-- Recent Orders Placeholder (right, takes 1/3 width on large screens) -->
-                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-1 flex flex-col flex-grow h-full">
+                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-1 flex flex-col flex-grow">
                         <h3 class="text-xl font-bold text-white mb-4">Recent Orders</h3>
                         <div id="dashboard-recent-orders" class="flex-1 overflow-y-auto">
                             <!-- Recent orders will be dynamically loaded here -->
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             dashboardRecentOrders.innerHTML = '';
             if (currentUser.orders && currentUser.orders.length > 0) {
-                const recentOrders = [...currentUser.orders].sort((a, b) => new Date(b.date) - new Date(a.date));
+                const recentOrders = [...currentUser.orders].slice(-5).reverse();
                 recentOrders.forEach(order => {
                     const orderDiv = document.createElement('div');
                     orderDiv.classList.add('bg-gray-800', 'p-3', 'rounded-md', 'mb-2', 'last:mb-0');
@@ -560,7 +560,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update sidebar navigation visibility based on role
         navLinks.forEach(link => {
             const linkRole = link.dataset.role;
-            if (linkRole === role || linkRole === undefined) { // Show if role matches or if no specific role is defined
+            // Admins see all links; resellers see only reseller-specific or general links
+            if (role === 'admin' || linkRole === role || linkRole === undefined) {
                 link.classList.remove('hidden');
             } else {
                 link.classList.add('hidden');
