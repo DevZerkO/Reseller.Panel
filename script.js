@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             dashboardRecentOrders.innerHTML = '';
             if (currentUser.orders && currentUser.orders.length > 0) {
-                const recentOrders = [...currentUser.orders].slice(-5).reverse();
+                const recentOrders = [...currentUser.orders].sort((a, b) => new Date(b.date) - new Date(a.date));
                 recentOrders.forEach(order => {
                     const orderDiv = document.createElement('div');
                     orderDiv.classList.add('bg-gray-800', 'p-3', 'rounded-md', 'mb-2', 'last:mb-0');
@@ -380,12 +380,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 row.classList.add('text-gray-300', 'hover:bg-gray-700');
                 row.innerHTML = `
                     <td class="py-2 px-4">${product.name}</td>
-                    <td class="py-2 px-4">${product.stock}</td>
-                    <td class="py-2 px-4">$${product.price.toFixed(2)}</td>
                     <td class="py-2 px-4">
+                        <input type="number" class="product-stock-edit-input w-20 p-1 rounded-md bg-gray-800 text-white border border-gray-600" value="${product.stock}" data-index="${index}">
+                    </td>
+                    <td class="py-2 px-4">$${product.price.toFixed(2)}</td>
+                    <td class="py-2 px-4 flex space-x-2">
+                        <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-1 px-2 rounded-md update-product-stock-btn" data-index="${index}">Update Stock</button>
                         <button class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded-md delete-product-btn" data-index="${index}">Remove</button>
                     </td>
                 `;
+            });
+
+            document.querySelectorAll('.update-product-stock-btn').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    const index = event.target.dataset.index;
+                    const stockInput = document.querySelector(`.product-stock-edit-input[data-index="${index}"]`);
+                    const newStock = parseInt(stockInput.value);
+
+                    if (isNaN(newStock) || newStock < 0) {
+                        showMessage('Please enter a valid non-negative stock value.');
+                        return;
+                    }
+
+                    dataStore.products[index].stock = newStock;
+                    saveDataToLocalStorage();
+                    showMessage(`Stock for ${dataStore.products[index].name} updated to ${newStock}.`);
+                    renderTable(); // Re-render to show updated stock
+                });
             });
 
             document.querySelectorAll('.delete-product-btn').forEach(button => {
