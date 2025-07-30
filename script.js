@@ -652,6 +652,7 @@ document.addEventListener('DOMContentLoaded', () => {
             <div class="content-page">
                 <h1 class="text-3xl font-bold text-white mb-6">Products</h1>
                 <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col">
+                    <h2 class="text-xl font-bold text-white mb-4">Add New Product</h2>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label for="product-name-input" class="block text-gray-400 text-sm font-medium mb-2">Product Name</label>
@@ -699,7 +700,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     <button id="add-product-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-4">Add Product</button>
 
-                    <div class="overflow-x-auto flex-1 mt-6">
+                    <h2 class="text-xl font-bold text-white mt-8 mb-4">Existing Products</h2>
+                    <div class="overflow-x-auto flex-1">
                         <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
                             <thead>
                                 <tr>
@@ -722,6 +724,63 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             </div>
+
+            <!-- Product Edit Modal (Hidden by default) -->
+            <div id="product-edit-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden z-50">
+                <div class="bg-gray-800 p-8 rounded-lg shadow-xl w-full max-w-2xl border border-gray-700 overflow-y-auto max-h-[90vh]">
+                    <h2 class="text-2xl font-bold text-white mb-6">Edit Product</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label for="edit-product-name-input" class="block text-gray-400 text-sm font-medium mb-2">Product Name</label>
+                            <input type="text" id="edit-product-name-input" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600" readonly>
+                        </div>
+                        <div>
+                            <label for="edit-product-stock-input" class="block text-gray-400 text-sm font-medium mb-2">Stock</label>
+                            <input type="number" id="edit-product-stock-input" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600">
+                        </div>
+                        <div>
+                            <label for="edit-product-price-input" class="block text-gray-400 text-sm font-medium mb-2">Base Price (per unit)</label>
+                            <input type="number" id="edit-product-price-input" step="0.01" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-gray-400 text-sm font-medium mb-2">API Links (Optional)</label>
+                            <input type="text" id="edit-product-api-link-1-day" placeholder="1 Day Key API Link" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 mb-2">
+                            <input type="text" id="edit-product-api-link-7-day" placeholder="7 Day Key API Link" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 mb-2">
+                            <input type="text" id="edit-product-api-link-30-day" placeholder="30 Day Key API Link" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600">
+                        </div>
+                        <div class="col-span-2">
+                            <label class="block text-gray-400 text-sm font-medium mb-2">Key Prices (Optional)</label>
+                            <input type="number" id="edit-product-price-1-day" placeholder="1 Day Price" step="0.01" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 mb-2">
+                            <input type="number" id="edit-product-price-7-day" placeholder="7 Day Price" step="0.01" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 mb-2">
+                            <input type="number" id="edit-product-price-30-day" placeholder="30 Day Price" step="0.01" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="edit-product-image-url-input" class="block text-gray-400 text-sm font-medium mb-2">Image URL</label>
+                            <input type="text" id="edit-product-image-url-input" placeholder="Product Image URL" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600">
+                            <img id="edit-product-image-preview" src="https://placehold.co/120x80/374151/ffffff?text=Product" alt="Product Image" class="w-24 h-auto rounded-md mt-2 border border-gray-600">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="edit-product-downloader-link-input" class="block text-gray-400 text-sm font-medium mb-2">Downloader Link</label>
+                            <input type="text" id="edit-product-downloader-link-input" placeholder="Downloader Link" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="edit-product-instructions-link-input" class="block text-gray-400 text-sm font-medium mb-2">Instructions Link</label>
+                            <input type="text" id="edit-product-instructions-link-input" placeholder="Instructions Link" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600">
+                        </div>
+                        <div class="col-span-2">
+                            <label for="edit-product-status-select" class="block text-gray-400 text-sm font-medium mb-2">Status</label>
+                            <select id="edit-product-status-select" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600">
+                                <option value="undetected">Undetected</option>
+                                <option value="detected">Detected</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="flex justify-end space-x-4 mt-6">
+                        <button id="cancel-edit-product-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md">Cancel</button>
+                        <button id="save-edit-product-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md">Save Changes</button>
+                    </div>
+                </div>
+            </div>
         `;
 
         const productNameInput = document.getElementById('product-name-input');
@@ -730,32 +789,47 @@ document.addEventListener('DOMContentLoaded', () => {
         const productApiLink1DayInput = document.getElementById('product-api-link-1-day');
         const productApiLink7DayInput = document.getElementById('product-api-link-7-day');
         const productApiLink30DayInput = document.getElementById('product-api-link-30-day');
-        // New price inputs
         const productPrice1DayInput = document.getElementById('product-price-1-day');
         const productPrice7DayInput = document.getElementById('product-price-7-day');
         const productPrice30DayInput = document.getElementById('product-price-30-day');
-        // New feature inputs
         const productImageURLInput = document.getElementById('product-image-url-input');
         const productDownloaderLinkInput = document.getElementById('product-downloader-link-input');
         const productInstructionsLinkInput = document.getElementById('product-instructions-link-input');
         const productStatusSelect = document.getElementById('product-status-select');
 
-
         const addProductBtn = document.getElementById('add-product-btn');
         const productsTableBody = document.getElementById('products-table-body');
 
+        // Modal elements
+        const productEditModal = document.getElementById('product-edit-modal');
+        const editProductNameInput = document.getElementById('edit-product-name-input');
+        const editProductStockInput = document.getElementById('edit-product-stock-input');
+        const editProductPriceInput = document.getElementById('edit-product-price-input');
+        const editProductApiLink1DayInput = document.getElementById('edit-product-api-link-1-day');
+        const editProductApiLink7DayInput = document.getElementById('edit-product-api-link-7-day');
+        const editProductApiLink30DayInput = document.getElementById('edit-product-api-link-30-day');
+        const editProductPrice1DayInput = document.getElementById('edit-product-price-1-day');
+        const editProductPrice7DayInput = document.getElementById('edit-product-price-7-day');
+        const editProductPrice30DayInput = document.getElementById('edit-product-price-30-day');
+        const editProductImageURLInput = document.getElementById('edit-product-image-url-input');
+        const editProductImagePreview = document.getElementById('edit-product-image-preview');
+        const editProductDownloaderLinkInput = document.getElementById('edit-product-downloader-link-input');
+        const editProductInstructionsLinkInput = document.getElementById('edit-product-instructions-link-input');
+        const editProductStatusSelect = document.getElementById('edit-product-status-select');
+        const saveEditProductBtn = document.getElementById('save-edit-product-btn');
+        const cancelEditProductBtn = document.getElementById('cancel-edit-product-btn');
+
+        let currentEditingProductIndex = -1; // To keep track of which product is being edited
+
+        // Function to render the products table
         const renderTable = () => {
             productsTableBody.innerHTML = '';
             dataStore.products.forEach((product, index) => {
                 const row = productsTableBody.insertRow();
                 row.classList.add('text-gray-300', 'hover:bg-gray-700');
                 row.innerHTML = `
-                    <td class="py-2 px-4">
-                        <a href="#" class="text-indigo-400 hover:underline product-name-link" data-product-name="${product.name}">${product.name}</a>
-                    </td>
-                    <td class="py-2 px-4">
-                        <input type="number" class="product-stock-edit-input w-20 p-1 rounded-md bg-gray-800 text-white border border-gray-600" value="${product.stock}" data-index="${index}">
-                    </td>
+                    <td class="py-2 px-4">${product.name}</td>
+                    <td class="py-2 px-4">${product.stock}</td>
                     <td class="py-2 px-4">$${product.price.toFixed(2)}</td>
                     <td class="py-2 px-4">$${(product.keyPrices?.['1_day'] || 0).toFixed(2)}</td>
                     <td class="py-2 px-4">$${(product.keyPrices?.['7_day'] || 0).toFixed(2)}</td>
@@ -775,30 +849,41 @@ document.addEventListener('DOMContentLoaded', () => {
                         </span>
                     </td>
                     <td class="py-2 px-4 flex space-x-2">
-                        <button class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold py-1 px-2 rounded-md update-product-stock-btn" data-index="${index}">Update Stock</button>
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-1 px-2 rounded-md edit-product-btn" data-index="${index}">Edit</button>
                         <button class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-1 px-2 rounded-md delete-product-btn" data-index="${index}">Remove</button>
                     </td>
                 `;
             });
 
-            document.querySelectorAll('.update-product-stock-btn').forEach(button => {
+            // Add event listeners for Edit buttons
+            document.querySelectorAll('.edit-product-btn').forEach(button => {
                 button.addEventListener('click', (event) => {
-                    const index = event.target.dataset.index;
-                    const stockInput = document.querySelector(`.product-stock-edit-input[data-index="${index}"]`);
-                    const newStock = parseInt(stockInput.value);
+                    const index = parseInt(event.target.dataset.index);
+                    currentEditingProductIndex = index;
+                    const product = dataStore.products[index];
+                    
+                    // Populate modal fields
+                    editProductNameInput.value = product.name;
+                    editProductStockInput.value = product.stock;
+                    editProductPriceInput.value = product.price.toFixed(2);
+                    editProductApiLink1DayInput.value = product.keyLinks?.['1_day'] || '';
+                    editProductApiLink7DayInput.value = product.keyLinks?.['7_day'] || '';
+                    editProductApiLink30DayInput.value = product.keyLinks?.['30_day'] || '';
+                    editProductPrice1DayInput.value = (product.keyPrices?.['1_day'] || 0).toFixed(2);
+                    editProductPrice7DayInput.value = (product.keyPrices?.['7_day'] || 0).toFixed(2);
+                    editProductPrice30DayInput.value = (product.keyPrices?.['30_day'] || 0).toFixed(2);
+                    editProductImageURLInput.value = product.imageUrl || '';
+                    editProductImagePreview.src = product.imageUrl || 'https://placehold.co/120x80/374151/ffffff?text=Product';
+                    editProductDownloaderLinkInput.value = product.downloaderLink || '';
+                    editProductInstructionsLinkInput.value = product.instructionsLink || '';
+                    editProductStatusSelect.value = product.status;
 
-                    if (isNaN(newStock) || newStock < 0) {
-                        showMessage('Please enter a valid non-negative stock value.');
-                        return;
-                    }
-
-                    dataStore.products[index].stock = newStock;
-                    saveDataToLocalStorage();
-                    showMessage(`Stock for ${dataStore.products[index].name} updated to ${newStock}.`);
-                    renderTable(); // Re-render to show updated stock
+                    // Show the modal
+                    productEditModal.classList.remove('hidden');
                 });
             });
 
+            // Add event listeners for Delete buttons
             document.querySelectorAll('.delete-product-btn').forEach(button => {
                 button.addEventListener('click', (event) => {
                     const index = event.target.dataset.index;
@@ -807,17 +892,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     renderTable();
                 });
             });
-
-            // Add event listener for product name links
-            document.querySelectorAll('.product-name-link').forEach(link => {
-                link.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    const productName = event.target.dataset.productName;
-                    renderEditProductPage(productName);
-                });
-            });
         };
 
+        // Event listener for adding a new product
         addProductBtn.addEventListener('click', () => {
             const name = productNameInput.value.trim();
             const stock = parseInt(productStockInput.value.trim());
@@ -828,11 +905,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 '30_day': productApiLink30DayInput.value.trim()
             };
             const keyPrices = {
-                '1_day': parseFloat(productPrice1DayInput.value.trim()) || 0, // Capture 1 Day Price
-                '7_day': parseFloat(productPrice7DayInput.value.trim()) || 0, // Capture 7 Day Price
-                '30_day': parseFloat(productPrice30DayInput.value.trim()) || 0 // Capture 30 Day Price
+                '1_day': parseFloat(productPrice1DayInput.value.trim()) || 0,
+                '7_day': parseFloat(productPrice7DayInput.value.trim()) || 0,
+                '30_day': parseFloat(productPrice30DayInput.value.trim()) || 0
             };
-            // Capture new feature values
             const imageUrl = productImageURLInput.value.trim();
             const downloaderLink = productDownloaderLinkInput.value.trim();
             const instructionsLink = productInstructionsLinkInput.value.trim();
@@ -844,7 +920,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Validate duration prices only if API links are provided
             if (Object.values(keyLinks).some(link => link.length > 0)) {
                 if (
                     (keyLinks['1_day'] && (isNaN(keyPrices['1_day']) || keyPrices['1_day'] < 0)) ||
@@ -863,10 +938,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 price,
                 keyLinks,
                 keyPrices,
-                imageUrl, // Use captured image URL
-                downloaderLink, // Use captured downloader link
-                instructionsLink, // Use captured instructions link
-                status // Use captured status
+                imageUrl,
+                downloaderLink,
+                instructionsLink,
+                status
             });
             saveDataToLocalStorage();
             renderTable();
@@ -885,104 +960,55 @@ document.addEventListener('DOMContentLoaded', () => {
             productInstructionsLinkInput.value = '';
             productStatusSelect.value = 'undetected'; // Reset to default
         });
-        renderTable(); // Initial render for products table
-    };
 
-    // NEW: Function to render the product editing page
-    const renderEditProductPage = (productName) => {
-        const product = dataStore.products.find(p => p.name === productName);
-        if (!product) {
-            showMessage('Product not found.');
-            navigateToPage('products', 'admin'); // Go back to products list
-            return;
-        }
-
-        contentArea.innerHTML = `
-            <div class="content-page">
-                <h1 class="text-3xl font-bold text-white mb-6">Edit Product: ${product.name}</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col">
-                    <div class="flex items-center mb-6">
-                        <img id="product-edit-image-preview" src="${product.imageUrl || 'https://placehold.co/120x80/374151/ffffff?text=Product'}" alt="Product Image" class="w-32 h-20 object-cover rounded-md mr-4 border border-gray-600">
-                        <div>
-                            <label for="product-image-url-input" class="block text-gray-400 text-sm font-medium mb-2">Image URL</label>
-                            <input type="text" id="product-image-url-input" value="${product.imageUrl || ''}" placeholder="Image URL" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label for="product-edit-downloader-link" class="block text-gray-400 text-sm font-medium mb-2">Downloader Link</label>
-                            <input type="text" id="product-edit-downloader-link" value="${product.downloaderLink || ''}" placeholder="Downloader Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        </div>
-                        <div>
-                            <label for="product-edit-instructions-link" class="block text-gray-400 text-sm font-medium mb-2">Instructions Link</label>
-                            <input type="text" id="product-edit-instructions-link" value="${product.instructionsLink || ''}" placeholder="Instructions Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        </div>
-                        <div class="col-span-2 flex items-center">
-                            <input type="checkbox" id="product-edit-status-toggle" class="h-5 w-5 text-indigo-600 rounded border-gray-600 focus:ring-indigo-500" ${product.status === 'undetected' ? 'checked' : ''}>
-                            <label for="product-edit-status-toggle" class="ml-2 text-gray-400 text-sm font-medium">Undetected</label>
-                            <span id="product-status-display" class="ml-4 text-lg font-bold ${product.status === 'undetected' ? 'text-green-500' : 'text-red-500'}">
-                                ${product.status.charAt(0).toUpperCase() + product.status.slice(1)}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end space-x-4 mt-6">
-                        <button id="back-to-products-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md">Back to Products</button>
-                        <button id="save-product-changes-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md">Save Changes</button>
-                    </div>
-                </div>
-            </div>
-        `;
-
-        const productImageURLInput = document.getElementById('product-image-url-input');
-        const productImagePreview = document.getElementById('product-edit-image-preview');
-        const productDownloaderLinkInput = document.getElementById('product-edit-downloader-link');
-        const productInstructionsLinkInput = document.getElementById('product-edit-instructions-link');
-        const productStatusToggle = document.getElementById('product-edit-status-toggle');
-        const productStatusDisplay = document.getElementById('product-status-display');
-        const saveProductChangesBtn = document.getElementById('save-product-changes-btn');
-        const backToProductsBtn = document.getElementById('back-to-products-btn');
-
-        // Update image preview dynamically
-        productImageURLInput.addEventListener('input', () => {
-            productImagePreview.src = productImageURLInput.value || 'https://placehold.co/120x80/374151/ffffff?text=Product';
-        });
-
-        // Update status display dynamically
-        productStatusToggle.addEventListener('change', () => {
-            if (productStatusToggle.checked) {
-                productStatusDisplay.textContent = 'Undetected';
-                productStatusDisplay.classList.remove('text-red-500');
-                productStatusDisplay.classList.add('text-green-500');
-            } else {
-                productStatusDisplay.textContent = 'Detected';
-                productStatusDisplay.classList.remove('text-green-500');
-                productStatusDisplay.classList.add('text-red-500');
-            }
-        });
-
-
-        saveProductChangesBtn.addEventListener('click', () => {
-            const productIndex = dataStore.products.findIndex(p => p.name === productName);
-            if (productIndex === -1) {
-                showMessage('Error: Product not found for saving.');
+        // Event listener for saving changes in the modal
+        saveEditProductBtn.addEventListener('click', () => {
+            if (currentEditingProductIndex === -1) {
+                showMessage('No product selected for editing.');
                 return;
             }
 
-            dataStore.products[productIndex].imageUrl = productImageURLInput.value.trim();
-            dataStore.products[productIndex].downloaderLink = productDownloaderLinkInput.value.trim();
-            dataStore.products[productIndex].instructionsLink = productInstructionsLinkInput.value.trim();
-            dataStore.products[productIndex].status = productStatusToggle.checked ? 'undetected' : 'detected';
+            const product = dataStore.products[currentEditingProductIndex];
+
+            // Update product object with values from modal inputs
+            product.name = editProductNameInput.value.trim(); // Name is read-only in modal but still captured
+            product.stock = parseInt(editProductStockInput.value.trim());
+            product.price = parseFloat(editProductPriceInput.value.trim());
+            product.keyLinks['1_day'] = editProductApiLink1DayInput.value.trim();
+            product.keyLinks['7_day'] = editProductApiLink7DayInput.value.trim();
+            product.keyLinks['30_day'] = editProductApiLink30DayInput.value.trim();
+            product.keyPrices['1_day'] = parseFloat(editProductPrice1DayInput.value.trim()) || 0;
+            product.keyPrices['7_day'] = parseFloat(editProductPrice7DayInput.value.trim()) || 0;
+            product.keyPrices['30_day'] = parseFloat(editProductPrice30DayInput.value.trim()) || 0;
+            product.imageUrl = editProductImageURLInput.value.trim();
+            product.downloaderLink = editProductDownloaderLinkInput.value.trim();
+            product.instructionsLink = editProductInstructionsLinkInput.value.trim();
+            product.status = editProductStatusSelect.value;
+
+            // Basic validation for updated values
+            if (!product.name || isNaN(product.stock) || product.stock < 0 || isNaN(product.price) || product.price < 0) {
+                showMessage('Please enter valid values for Product Name, Stock, and Base Price in the edit form.');
+                return;
+            }
 
             saveDataToLocalStorage();
             showMessage(`Product "${product.name}" updated successfully!`);
-            navigateToPage('products', 'admin'); // Go back to products list after saving
+            productEditModal.classList.add('hidden'); // Hide modal
+            renderTable(); // Re-render the table to show updated data
         });
 
-        backToProductsBtn.addEventListener('click', () => {
-            navigateToPage('products', 'admin');
+        // Event listener for canceling edit in the modal
+        cancelEditProductBtn.addEventListener('click', () => {
+            productEditModal.classList.add('hidden'); // Hide modal
+            currentEditingProductIndex = -1; // Reset index
         });
+
+        // Dynamic image preview in modal
+        editProductImageURLInput.addEventListener('input', () => {
+            editProductImagePreview.src = editProductImageURLInput.value || 'https://placehold.co/120x80/374151/ffffff?text=Product';
+        });
+
+        renderTable(); // Initial render for products table
     };
 
 
