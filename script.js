@@ -205,6 +205,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let selectedProduct = null; // To store the currently selected product object
 
+        // Reset selectedProduct and hide variants container on page load
+        selectedProduct = null;
+        keyVariantsContainer.classList.add('hidden'); // Ensure it's hidden initially
+
         const loggedInUserEmail = localStorage.getItem('loggedInUser');
         let currentUser = dataStore.users.find(user => user.email === loggedInUserEmail); // Get a mutable reference
         if (currentUser) {
@@ -971,7 +975,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const product = dataStore.products[currentEditingProductIndex];
 
             // Update product object with values from modal inputs
-            product.name = editProductNameInput.value.trim(); // Name is read-only in modal but still captured
+            // Note: Product name is readonly in the modal, so it won't change here
             product.stock = parseInt(editProductStockInput.value.trim());
             product.price = parseFloat(editProductPriceInput.value.trim());
             product.keyLinks['1_day'] = editProductApiLink1DayInput.value.trim();
@@ -986,8 +990,8 @@ document.addEventListener('DOMContentLoaded', () => {
             product.status = editProductStatusSelect.value;
 
             // Basic validation for updated values
-            if (!product.name || isNaN(product.stock) || product.stock < 0 || isNaN(product.price) || product.price < 0) {
-                showMessage('Please enter valid values for Product Name, Stock, and Base Price in the edit form.');
+            if (isNaN(product.stock) || product.stock < 0 || isNaN(product.price) || product.price < 0) {
+                showMessage('Please enter valid values for Stock and Base Price in the edit form.');
                 return;
             }
 
