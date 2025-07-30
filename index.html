@@ -4,118 +4,143 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reseller Panel</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Link to external stylesheet -->
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="flex h-screen overflow-hidden">
 
-    <div id="login-container" class="w-full h-full flex items-center justify-center bg-gray-900">
-        <div class="bg-gray-800 p-8 rounded-lg shadow-xl w-96 max-w-md border border-gray-700">
-            <p class="text-gray-400 text-sm text-center mb-6">Staff can assist with finding your login email</p>
-            <h2 class="text-2xl font-bold text-white mb-6 text-center">Welcome Back</h2>
+    <!-- Login Page Container -->
+    <div id="login-container" class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-900 to-black p-4">
+        <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-96 max-w-md border border-gray-700 transform transition-all duration-300 hover:scale-105">
+            <p class="text-gray-400 text-sm text-center mb-6 font-light">Staff can assist with finding your login email</p>
+            <h2 class="text-3xl font-extrabold text-white mb-8 text-center tracking-wide">Welcome Back</h2>
 
-            <div class="mb-4">
-                <label for="login-email" class="block text-gray-400 text-sm font-medium mb-2">Email/Username</label>
+            <div class="mb-5">
+                <label for="login-email" class="block text-gray-300 text-sm font-medium mb-2">Email/Username</label>
                 <div class="relative">
-                    <input type="text" id="login-email" class="w-full p-3 pl-10 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="email@example.com">
-                    <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path></svg>
+                    <input type="text" id="login-email" class="w-full p-3 pl-12 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-3 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200" placeholder="email@example.com">
+                    <!-- Icon for email/username -->
+                    <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path></svg>
                 </div>
             </div>
 
-            <div class="mb-6">
-                <label for="login-password" class="block text-gray-400 text-sm font-medium mb-2">Password</label>
+            <div class="mb-7">
+                <label for="login-password" class="block text-gray-300 text-sm font-medium mb-2">Password</label>
                 <div class="relative">
-                    <input type="password" id="login-password" class="w-full p-3 pl-10 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Encrypted">
-                    <svg class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v3h8z"></path></svg>
+                    <input type="password" id="login-password" class="w-full p-3 pl-12 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-3 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200" placeholder="Encrypted">
+                    <!-- Icon for password -->
+                    <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v3h8z"></path></svg>
                 </div>
             </div>
 
-            <p class="text-right mb-6">
-                <a href="#" class="text-sm text-indigo-400 hover:text-indigo-300">Reset my Password</a>
+            <p class="text-right mb-8">
+                <a href="#" class="text-sm text-indigo-400 hover:text-indigo-300 font-medium transition-colors duration-200">Reset my Password</a>
             </p>
 
-            <div class="flex justify-between space-x-4">
-                <button id="login-btn" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 shadow-lg">Login</button>
-                <button id="register-btn" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-md transition-colors duration-200 shadow-lg">Register</button>
+            <div class="flex flex-col space-y-4">
+                <button id="login-btn" class="w-full bg-gradient-to-r from-indigo-600 to-purple-700 hover:from-indigo-700 hover:to-purple-800 text-white font-bold py-3 px-4 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">Login</button>
+                <button id="register-btn" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200 shadow-md">Register</button>
             </div>
         </div>
     </div>
 
-    <div id="main-panel" class="flex-1 flex hidden">
-        <aside class="w-64 bg-gray-900 text-gray-300 flex flex-col border-r border-gray-700 h-full">
+    <!-- Main Panel (Initially hidden by script.js) -->
+    <div id="main-panel" class="flex-1 flex flex-col hidden">
+        <!-- Sidebar -->
+        <aside class="w-64 bg-gray-900 text-gray-300 flex flex-col border-r border-gray-700 shadow-lg">
             <div class="flex flex-col flex-1">
-                <div class="p-4 border-b border-gray-700 flex items-center justify-center">
-                    <img src="https://cdn.discordapp.com/attachments/1399542677737050235/1399620351503368222/logo.png?ex=6889a987&is=68885807&hm=e652abbf33b44b0f44b4b28d153ee9260582b19038754af9c36a02ed591cb84f&" alt="Logo" class="h-10 w-auto rounded-md">
+                <!-- Logo -->
+                <div class="p-6 border-b border-gray-700 flex items-center justify-center bg-gray-950">
+                    <img src="https://cdn.discordapp.com/attachments/1399542677737050235/1399620351503368222/logo.png?ex=6889a987&is=68885807&hm=e652abbf33b44b0f44b4b28d153ee9260582b19038754af9c36a02ed591cb84f&" alt="Logo" class="h-12 w-auto rounded-md shadow-md">
                 </div>
 
-                <nav class="mt-4 flex-1 overflow-y-auto">
-                    <a href="#dashboard" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-md transition-colors duration-200 hover:bg-gray-700 hover:text-white" data-page="dashboard" data-role="reseller">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001 1h3v-3m-3 3h3v-3m0 0h6v3m-3-3v3"></path></svg>
+                <!-- Navigation Links -->
+                <nav class="mt-6 flex-1">
+                    <a href="#dashboard" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-full transition-all duration-200 hover:bg-gray-700 hover:text-white group" data-page="dashboard" data-role="reseller">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001 1h3v-3m-3 3h3v-3m0 0h6v3m-3-3v3"></path></svg>
                         Dashboard
                     </a>
-                    <a href="#buy-keys" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-md transition-colors duration-200 hover:bg-gray-700 hover:text-white" data-page="buy-keys" data-role="reseller">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M12 2a1 1 0 00-1 1v18a1 1 0 001 1h6a1 1 0 001-1V3a1 1 0 00-1-1h-6zM7 5h2M7 9h2M7 13h2M7 17h2"></path></svg>
+                    <a href="#buy-keys" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-full transition-all duration-200 hover:bg-gray-700 hover:text-white group" data-page="buy-keys" data-role="reseller">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 5v2m0 4v2m0 4v2M12 2a1 1 0 00-1 1v18a1 1 0 001 1h6a1 1 0 001-1V3a1 1 0 00-1-1h-6zM7 5h2M7 9h2M7 13h2M7 17h2"></path></svg>
                         Buy Keys
                     </a>
-                    <a href="#add-funds" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-md transition-colors duration-200 hover:bg-gray-700 hover:text-white" data-page="add-funds" data-role="reseller">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V4m0 8v4m-6 0H6m6 0h.01M12 12h4m-4 0h.01M12 8h.01M12 16h.01M12 20h.01M6 12h.01M18 12h.01M4 6h.01M20 6h.01M4 18h.01M20 18h.01M3 21h18a2 2 0 002-2V5a2 2 0 00-2-2H3a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                    <a href="#add-funds" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-full transition-colors duration-200 hover:bg-gray-700 hover:text-white group" data-page="add-funds" data-role="reseller">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V4m0 8v4m-6 0H6m6 0h.01M12 12h4m-4 0h.01M12 8h.01M12 16h.01M12 20h.01M6 12h.01M18 12h.01M4 6h.01M20 6h.01M4 18h.01M20 18h.01M3 21h18a2 2 0 002-2V5a2 2 0 00-2-2H3a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                         Add Funds
                     </a>
-                    <a href="#manage-orders" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-md transition-colors duration-200 hover:bg-gray-700 hover:text-white" data-page="manage-orders" data-role="reseller">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    <a href="#manage-orders" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-full transition-colors duration-200 hover:bg-gray-700 hover:text-white group" data-page="manage-orders" data-role="reseller">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
                         Manage Orders
                     </a>
-                    <a href="#manage-keys" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-md transition-colors duration-200 hover:bg-gray-700 hover:text-white" data-page="manage-keys" data-role="reseller">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2v5a2 2 0 01-2 2h-5a2 2 0 01-2-2V9a2 2 0 012-2h5z"></path></svg>
+                    <a href="#manage-keys" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-full transition-colors duration-200 hover:bg-gray-700 hover:text-white group" data-page="manage-keys" data-role="reseller">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2v5a2 2 0 01-2 2h-5a2 2 0 01-2-2V9a2 2 0 012-2h5z"></path></svg>
                         Manage Keys
                     </a>
-                    <a href="#settings" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-md transition-colors duration-200 hover:bg-gray-700 hover:text-white" data-page="settings" data-role="reseller">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    <a href="#settings" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-full transition-colors duration-200 hover:bg-gray-700 hover:text-white group" data-page="settings" data-role="reseller">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         Settings
                     </a>
-                    <a href="#products" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-md transition-colors duration-200 hover:bg-gray-700 hover:text-white hidden" data-page="products" data-role="admin">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
+                    <a href="#products" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-full transition-colors duration-200 hover:bg-gray-700 hover:text-white group hidden" data-page="products" data-role="admin">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"></path></svg>
                         Products
                     </a>
-                    <a href="#resellers" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-md transition-colors duration-200 hover:bg-gray-700 hover:text-white hidden" data-page="resellers" data-role="admin">
-                        <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h2a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2m3-10h4m-4 4h4m-9-4h.01M7 16h.01"></path></svg>
+                    <a href="#resellers" class="nav-link flex items-center py-3 px-4 text-sm font-medium rounded-r-full transition-colors duration-200 hover:bg-gray-700 hover:text-white group hidden" data-page="resellers" data-role="admin">
+                        <svg class="w-5 h-5 mr-3 text-gray-400 group-hover:text-white transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h2a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2h2m3-10h4m-4 4h4m-9-4h.01M7 16h.01"></path></svg>
                         Manage Users
                     </a>
                 </nav>
-                <div class="mt-auto p-4 border-t border-gray-700 flex flex-col items-center">
-                    <img src="https://placehold.co/40x40/6366f1/ffffff?text=U" alt="User Avatar" class="w-10 h-10 rounded-full mb-2">
-                    <p id="logged-in-username" class="text-sm font-semibold text-white">sylxisthebest</p>
-                    <p id="user-role" class="text-xs text-gray-400 mb-4">Reseller</p>
-                    <button id="logout-btn" class="flex items-center justify-center w-full py-2 px-4 text-sm font-medium text-red-400 rounded-md transition-colors duration-200 hover:bg-gray-700 hover:text-red-300">
-                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                        Logout
-                    </button>
+            </div>
+
+            <!-- User Profile and Logout -->
+            <div class="p-4 border-t border-gray-700 bg-gray-950">
+                <div class="flex items-center mb-4">
+                    <img src="https://placehold.co/40x40/6366f1/ffffff?text=U" alt="User Avatar" class="w-10 h-10 rounded-full mr-3 border-2 border-indigo-500 shadow-md">
+                    <div>
+                        <p id="logged-in-username" class="text-sm font-semibold text-white">sylxisthebest</p>
+                        <p id="user-role" class="text-xs text-gray-400">Reseller</p>
+                    </div>
                 </div>
+                <button id="logout-btn" class="flex items-center w-full py-2 px-4 text-sm font-medium text-red-400 rounded-md transition-colors duration-200 hover:bg-gray-700 hover:text-red-300 group">
+                    <svg class="w-5 h-5 mr-3 text-red-400 group-hover:text-red-300 transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Logout
+                </button>
             </div>
         </aside>
 
-        <div class="flex-1 flex flex-col bg-gray-800 overflow-hidden">
-            <header class="h-16 bg-gray-900 border-b border-gray-700 flex items-center justify-end px-6">
-                <div class="relative ml-auto">
-                    <button class="text-gray-400 hover:text-white focus:outline-none">
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col bg-gray-800 overflow-hidden">
+            <!-- Top Bar (Header) -->
+            <header class="h-16 bg-gray-900 border-b border-gray-700 flex items-center justify-end px-6 shadow-lg">
+                <!-- Notification Icon -->
+                <div class="relative ml-auto mr-4">
+                    <button class="text-gray-400 hover:text-white focus:outline-none transition-colors duration-200">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                     </button>
                     <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-gray-900"></span>
                 </div>
+
+                <!-- User Profile and Logout (in header for smaller screens or alternative layout) -->
+                <!-- This section is now moved to the sidebar for a cleaner top bar -->
             </header>
 
+            <!-- Content Pages -->
             <div id="content-area" class="flex-1 p-6 overflow-y-auto flex flex-col">
-                </div>
-        </div>
+                <!-- Content will be dynamically loaded here by JavaScript functions -->
+            </div>
+        </main>
     </div>
 
+    <!-- Message Box for alerts -->
     <div id="message-box" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
-        <div class="bg-gray-700 p-6 rounded-lg shadow-xl max-w-sm w-full text-center">
+        <div class="bg-gray-700 p-6 rounded-lg shadow-xl max-w-sm w-full text-center border border-gray-600">
             <p id="message-text" class="text-white text-lg mb-4"></p>
-            <button id="message-close-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md">OK</button>
+            <button id="message-close-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md transition-colors duration-200">OK</button>
         </div>
     </div>
 
+    <!-- Link to external JavaScript file -->
     <script src="script.js"></script>
 </body>
 </html>
