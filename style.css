@@ -38,7 +38,13 @@ body {
     background-color: #2d3748; /* Darker background for active link */
     color: #6366f1; /* Purple text color for active link */
     border-right: 3px solid #6366f1; /* Purple border on the right */
+    box-shadow: 0 2px 10px rgba(99, 102, 241, 0.3); /* Subtle glow for active link */
 }
+
+.nav-link.active svg {
+    color: #6366f1; /* Active icon color */
+}
+
 
 /* Ensure main content area takes full height and is a flex column */
 main {
