@@ -23,7 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const logoutBtn = document.getElementById('logout-btn');
     const loggedInUsernameDisplay = document.getElementById('logged-in-username');
     const userRoleDisplay = document.getElementById('user-role');
-    const contentArea = document.getElementById('content-area');
+    // Renamed contentArea to dynamicContentContainer for clarity and correct targeting
+    const dynamicContentContainer = document.getElementById('dynamic-content-container');
 
     const navLinks = document.querySelectorAll('.nav-link');
 
@@ -88,53 +89,51 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Page Rendering Functions ---
 
     const renderDashboardPage = () => {
-        contentArea.innerHTML = `
-            <div class="content-page">
-                <h1 class="text-3xl font-bold text-white mb-6">Dashboard</h1>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 flex-shrink-0">
-                    <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col items-center justify-center">
-                        <p class="text-gray-400 text-sm">Discount</p>
-                        <p class="text-white text-3xl font-bold">50 %</p>
+        dynamicContentContainer.innerHTML = `
+            <h1 class="text-3xl font-bold text-white mb-6">Dashboard</h1>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 flex-shrink-0">
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col items-center justify-center">
+                    <p class="text-gray-400 text-sm">Discount</p>
+                    <p class="text-white text-3xl font-bold">50 %</p>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col items-center justify-center">
+                    <p class="text-gray-400 text-sm">Account Type</p>
+                    <p class="text-white text-3xl font-bold" id="dashboard-account-type-display">User</p>
+                </div>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col items-center justify-center">
+                    <p class="text-gray-400 text-sm">Your Wallet</p>
+                    <p class="text-white text-3xl font-bold" id="dashboard-wallet-balance">$0.00</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 flex flex-col flex-grow">
+                    <div class="flex justify-between items-center mb-4">
+                        <p class="text-gray-400 text-sm">Last 24 Hours</p>
+                        <p class="text-white text-lg font-bold">$0.00</p>
                     </div>
-                    <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col items-center justify-center">
-                        <p class="text-gray-400 text-sm">Account Type</p>
-                        <p class="text-white text-3xl font-bold" id="dashboard-account-type-display">User</p>
+                    <div class="flex-1 flex items-center justify-center bg-gray-800 rounded-md">
+                        <p class="text-gray-500">Graph Area</p>
                     </div>
-                    <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col items-center justify-center">
-                        <p class="text-gray-400 text-sm">Your Wallet</p>
-                        <p class="text-white text-3xl font-bold" id="dashboard-wallet-balance">$0.00</p>
+                    <div class="flex justify-between text-xs text-gray-400 mt-2">
+                        <span>00:00</span>
+                        <span>02:00</span>
+                        <span>04:00</span>
+                        <span>06:00</span>
+                        <span>08:00</span>
+                        <span>10:00</span>
+                        <span>12:00</span>
+                        <span>14:00</span>
+                        <span>16:00</span>
+                        <span>18:00</span>
+                        <span>20:00</span>
+                        <span>22:00</span>
                     </div>
                 </div>
-
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 flex flex-col flex-grow">
-                        <div class="flex justify-between items-center mb-4">
-                            <p class="text-gray-400 text-sm">Last 24 Hours</p>
-                            <p class="text-white text-lg font-bold">$0.00</p>
-                        </div>
-                        <div class="flex-1 flex items-center justify-center bg-gray-800 rounded-md">
-                            <p class="text-gray-500">Graph Area</p>
-                        </div>
-                        <div class="flex justify-between text-xs text-gray-400 mt-2">
-                            <span>00:00</span>
-                            <span>02:00</span>
-                            <span>04:00</span>
-                            <span>06:00</span>
-                            <span>08:00</span>
-                            <span>10:00</span>
-                            <span>12:00</span>
-                            <span>14:00</span>
-                            <span>16:00</span>
-                            <span>18:00</span>
-                            <span>20:00</span>
-                            <span>22:00</span>
-                        </div>
-                    </div>
-                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-1 flex flex-col flex-grow">
-                        <h3 class="text-xl font-bold text-white mb-4">Recent Orders</h3>
-                        <div id="dashboard-recent-orders" class="flex-1 overflow-y-auto">
-                            <p class="text-gray-400">No recent orders.</p>
-                        </div>
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-1 flex flex-col flex-grow">
+                    <h3 class="text-xl font-bold text-white mb-4">Recent Orders</h3>
+                    <div id="dashboard-recent-orders" class="flex-1 overflow-y-auto">
+                        <p class="text-gray-400">No recent orders.</p>
                     </div>
                 </div>
             </div>
@@ -172,54 +171,52 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const renderBuyKeysPage = () => {
-        contentArea.innerHTML = `
-            <div class="content-page">
-                <h1 class="text-3xl font-bold text-white mb-6">Buy Keys</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
-                    <p class="text-gray-400 text-lg mb-4">Your current balance: <span id="current-balance" class="font-bold text-white">$0.00</span></p>
+        dynamicContentContainer.innerHTML = `
+            <h1 class="text-3xl font-bold text-white mb-6">Buy Keys</h1>
+            <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
+                <p class="text-gray-400 text-lg mb-4">Your current balance: <span id="current-balance" class="font-bold text-white">$0.00</span></p>
 
-                    <div id="product-selection-area">
-                        <label class="block text-gray-400 text-sm font-medium mb-2">Select Product</label>
-                        <p class="text-gray-500 text-sm mb-2">Click a product card below to select it.</p>
-                        <div id="product-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto max-h-64 mb-4 p-2 rounded-md bg-gray-800 border border-gray-600">
-                            <!-- Product cards will be dynamically loaded here -->
-                            <p class="text-gray-500 text-center col-span-full">No products available.</p>
-                        </div>
+                <div id="product-selection-area">
+                    <label class="block text-gray-400 text-sm font-medium mb-2">Select Product</label>
+                    <p class="text-gray-500 text-sm mb-2">Click a product card below to select it.</p>
+                    <div id="product-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto max-h-64 mb-4 p-2 rounded-md bg-gray-800 border border-gray-600">
+                        <!-- Product cards will be dynamically loaded here -->
+                        <p class="text-gray-500 text-center col-span-full">No products available.</p>
                     </div>
-
-                    <!-- New section for selected product details -->
-                    <div id="selected-product-detail" class="hidden bg-gray-800 p-4 rounded-lg shadow-md mb-6 relative">
-                        <button id="back-to-products-btn" class="absolute top-3 right-3 bg-gray-600 hover:bg-gray-700 text-white text-xs font-bold py-1 px-2 rounded-md">
-                            Back to Products
-                        </button>
-                        <div class="flex items-center space-x-4 mb-4">
-                            <img id="product-detail-image" src="https://placehold.co/120x80/374151/ffffff?text=Product" alt="Product Image" class="w-24 h-auto rounded-md border border-gray-600">
-                            <div>
-                                <h2 id="product-detail-name" class="text-xl font-bold text-white">Product Name</h2>
-                                <p id="product-detail-description" class="text-gray-400 text-sm">No description available.</p>
-                            </div>
-                            <span id="product-detail-status" class="ml-auto font-bold text-green-500"></span>
-                        </div>
-                        <div class="flex space-x-4 text-sm text-indigo-400">
-                            <a id="product-detail-downloader-link" href="#" target="_blank" class="hover:underline flex items-center">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                Download
-                            </a>
-                            <a id="product-detail-instructions-link" href="#" target="_blank" class="hover:underline flex items-center">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                Instructions
-                            </a>
-                        </div>
-                    </div>
-
-                    <!-- Section for key variants -->
-                    <div id="key-variants-container" class="mb-4 hidden">
-                        <h3 class="text-xl font-bold text-white mb-4">Select Variants</h3>
-                        <!-- Variants will be dynamically loaded here -->
-                    </div>
-
-                    <button id="buy-key-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-auto">Buy Key(s)</button>
                 </div>
+
+                <!-- New section for selected product details -->
+                <div id="selected-product-detail" class="hidden bg-gray-800 p-4 rounded-lg shadow-md mb-6 relative">
+                    <button id="back-to-products-btn" class="absolute top-3 right-3 bg-gray-600 hover:bg-gray-700 text-white text-xs font-bold py-1 px-2 rounded-md">
+                        Back to Products
+                    </button>
+                    <div class="flex items-center space-x-4 mb-4">
+                        <img id="product-detail-image" src="https://placehold.co/120x80/374151/ffffff?text=Product" alt="Product Image" class="w-24 h-auto rounded-md border border-gray-600">
+                        <div>
+                            <h2 id="product-detail-name" class="text-xl font-bold text-white">Product Name</h2>
+                            <p id="product-detail-description" class="text-gray-400 text-sm">No description available.</p>
+                        </div>
+                        <span id="product-detail-status" class="ml-auto font-bold text-green-500"></span>
+                    </div>
+                    <div class="flex space-x-4 text-sm text-indigo-400">
+                        <a id="product-detail-downloader-link" href="#" target="_blank" class="hover:underline flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Download
+                        </a>
+                        <a id="product-detail-instructions-link" href="#" target="_blank" class="hover:underline flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Instructions
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Section for key variants -->
+                <div id="key-variants-container" class="mb-4 hidden">
+                    <h3 class="text-xl font-bold text-white mb-4">Select Variants</h3>
+                    <!-- Variants will be dynamically loaded here -->
+                </div>
+
+                <button id="buy-key-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-auto">Buy Key(s)</button>
             </div>
         `;
 
@@ -552,21 +549,19 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const renderAddFundsPage = () => {
-        contentArea.innerHTML = `
-            <div class="content-page">
-                <h1 class="text-3xl font-bold text-white mb-6">Add Funds</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
-                    <p class="text-gray-400 text-lg mb-4">Your current balance: <span id="add-funds-current-balance" class="font-bold text-white">$0.00</span></p>
-                    <div class="mb-4">
-                        <label for="amount-input" class="block text-gray-400 text-sm font-medium mb-2">Amount to Add ($)</label>
-                        <input type="number" id="amount-input" value="10.00" min="1.00" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                    </div>
-                    <button id="initiate-payment-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-auto">Initiate Payment</button>
+        dynamicContentContainer.innerHTML = `
+            <h1 class="text-3xl font-bold text-white mb-6">Add Funds</h1>
+            <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
+                <p class="text-gray-400 text-lg mb-4">Your current balance: <span id="add-funds-current-balance" class="font-bold text-white">$0.00</span></p>
+                <div class="mb-4">
+                    <label for="amount-input" class="block text-gray-400 text-sm font-medium mb-2">Amount to Add ($)</label>
+                    <input type="number" id="amount-input" value="10.00" min="1.00" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                </div>
+                <button id="initiate-payment-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-auto">Initiate Payment</button>
 
-                    <div id="add-funds-confirmation-area" class="mt-4 hidden flex flex-col items-center">
-                        <p class="text-yellow-400 text-md mb-4 text-center">Please proceed to payment to add funds.</p>
-                        <button id="proceed-to-stripe-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">Proceed to Stripe</button>
-                    </div>
+                <div id="add-funds-confirmation-area" class="mt-4 hidden flex flex-col items-center">
+                    <p class="text-yellow-400 text-md mb-4 text-center">Please proceed to payment to add funds.</p>
+                    <button id="proceed-to-stripe-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">Proceed to Stripe</button>
                 </div>
             </div>
         `;
@@ -613,26 +608,24 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const renderManageOrdersPage = () => {
-        contentArea.innerHTML = `
-            <div class="content-page">
-                <h1 class="text-3xl font-bold text-white mb-6">Manage Orders</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
-                    <div class="overflow-x-auto flex-1">
-                        <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
-                            <thead>
-                                <tr>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tl-lg">Order ID</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Product</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Quantity</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Date</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Status</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Key</th>
-                                </tr>
-                            </thead>
-                            <tbody id="orders-table-body" class="divide-y divide-gray-700">
-                                </tbody>
-                        </table>
-                    </div>
+        dynamicContentContainer.innerHTML = `
+            <h1 class="text-3xl font-bold text-white mb-6">Manage Orders</h1>
+            <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
+                <div class="overflow-x-auto flex-1">
+                    <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tl-lg">Order ID</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Product</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Quantity</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Date</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Status</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tr-lg">Key</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-table-body" class="divide-y divide-gray-700">
+                            </tbody>
+                    </table>
                 </div>
             </div>
         `;
@@ -662,24 +655,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const renderManageKeysPage = () => {
-        contentArea.innerHTML = `
-            <div class="content-page">
-                <h1 class="text-3xl font-bold text-white mb-6">Manage Keys</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
-                    <div class="overflow-x-auto flex-1">
-                        <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
-                            <thead>
-                                <tr>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tl-lg">Product</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Key</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tr-lg">Purchased Date</th>
-                                </tr>
-                            </thead>
-                            <tbody id="manage-keys-table-body" class="divide-y divide-gray-700">
-                                <!-- Keys will be inserted here by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
+        dynamicContentContainer.innerHTML = `
+            <h1 class="text-3xl font-bold text-white mb-6">Manage Keys</h1>
+            <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
+                <div class="overflow-x-auto flex-1">
+                    <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tl-lg">Product</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Key</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tr-lg">Purchased Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="manage-keys-table-body" class="divide-y divide-gray-700">
+                            <!-- Keys will be inserted here by JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
         `;
@@ -715,95 +706,91 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const renderSettingsPage = () => {
-        contentArea.innerHTML = `
-            <div class="content-page">
-                <h1 class="text-3xl font-bold text-white mb-6">Settings</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex items-center justify-center">
-                    <p class="text-gray-400 text-lg">Settings content goes here.</p>
-                </div>
+        dynamicContentContainer.innerHTML = `
+            <h1 class="text-3xl font-bold text-white mb-6">Settings</h1>
+            <div class="bg-gray-700 p-6 rounded-lg shadow-md flex items-center justify-center">
+                <p class="text-gray-400 text-lg">Settings content goes here.</p>
             </div>
         `;
     };
 
     const renderProductsPage = () => {
-        contentArea.innerHTML = `
-            <div class="content-page">
-                <h1 class="text-3xl font-bold text-white mb-6">Products</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col">
-                    <h2 class="text-xl font-bold text-white mb-4">Add New Product</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label for="product-name-input" class="block text-gray-400 text-sm font-medium mb-2">Product Name</label>
-                            <input type="text" id="product-name-input" placeholder="Product Name" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        </div>
-                        <div>
-                            <label for="product-stock-input" class="block text-gray-400 text-sm font-medium mb-2">Stock</label>
-                            <input type="number" id="product-stock-input" placeholder="Stock" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        </div>
-                        <div>
-                            <label for="product-price-input" class="block text-gray-400 text-sm font-medium mb-2">Base Price (per unit)</label>
-                            <input type="number" id="product-price-input" placeholder="Base Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-gray-400 text-sm font-medium mb-2">API Links (Optional)</label>
-                            <input type="text" id="product-api-link-1-day" placeholder="1 Day Key API Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
-                            <input type="text" id="product-api-link-7-day" placeholder="7 Day Key API Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
-                            <input type="text" id="product-api-link-30-day" placeholder="30 Day Key API Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        </div>
-                        <div class="col-span-2">
-                            <label class="block text-gray-400 text-sm font-medium mb-2">Key Prices (Optional)</label>
-                            <input type="number" id="product-price-1-day" placeholder="1 Day Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
-                            <input type="number" id="product-price-7-day" placeholder="7 Day Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
-                            <input type="number" id="product-price-30-day" placeholder="30 Day Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        </div>
-                        <div class="col-span-2">
-                            <label for="product-image-url-input" class="block text-gray-400 text-sm font-medium mb-2">Image URL</label>
-                            <input type="text" id="product-image-url-input" placeholder="Product Image URL" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        </div>
-                        <div class="col-span-2">
-                            <label for="product-downloader-link-input" class="block text-gray-400 text-sm font-medium mb-2">Downloader Link</label>
-                            <input type="text" id="product-downloader-link-input" placeholder="Downloader Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        </div>
-                        <div class="col-span-2">
-                            <label for="product-instructions-link-input" class="block text-gray-400 text-sm font-medium mb-2">Instructions Link</label>
-                            <input type="text" id="product-instructions-link-input" placeholder="Instructions Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                        </div>
-                        <div class="col-span-2">
-                            <label for="product-status-select" class="block text-gray-400 text-sm font-medium mb-2">Status</label>
-                            <select id="product-status-select" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
-                                <option value="undetected">Undetected</option>
-                                <option value="detected">Detected</option>
-                            </select>
-                        </div>
-                        <div class="col-span-2">
-                            <label for="product-description-input" class="block text-gray-400 text-sm font-medium mb-2">Description</label>
-                            <textarea id="product-description-input" placeholder="Product Description" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 h-24"></textarea>
-                        </div>
+        dynamicContentContainer.innerHTML = `
+            <h1 class="text-3xl font-bold text-white mb-6">Products</h1>
+            <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col">
+                <h2 class="text-xl font-bold text-white mb-4">Add New Product</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label for="product-name-input" class="block text-gray-400 text-sm font-medium mb-2">Product Name</label>
+                        <input type="text" id="product-name-input" placeholder="Product Name" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
                     </div>
-                    <button id="add-product-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-4">Add Product</button>
+                    <div>
+                        <label for="product-stock-input" class="block text-gray-400 text-sm font-medium mb-2">Stock</label>
+                        <input type="number" id="product-stock-input" placeholder="Stock" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                    </div>
+                    <div>
+                        <label for="product-price-input" class="block text-gray-400 text-sm font-medium mb-2">Base Price (per unit)</label>
+                        <input type="number" id="product-price-input" placeholder="Base Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-gray-400 text-sm font-medium mb-2">API Links (Optional)</label>
+                        <input type="text" id="product-api-link-1-day" placeholder="1 Day Key API Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
+                        <input type="text" id="product-api-link-7-day" placeholder="7 Day Key API Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
+                        <input type="text" id="product-api-link-30-day" placeholder="30 Day Key API Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                    </div>
+                    <div class="col-span-2">
+                        <label class="block text-gray-400 text-sm font-medium mb-2">Key Prices (Optional)</label>
+                        <input type="number" id="product-price-1-day" placeholder="1 Day Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
+                        <input type="number" id="product-price-7-day" placeholder="7 Day Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 mb-2">
+                        <input type="number" id="product-price-30-day" placeholder="30 Day Price" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                    </div>
+                    <div class="col-span-2">
+                        <label for="product-image-url-input" class="block text-gray-400 text-sm font-medium mb-2">Image URL</label>
+                        <input type="text" id="product-image-url-input" placeholder="Product Image URL" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                    </div>
+                    <div class="col-span-2">
+                        <label for="product-downloader-link-input" class="block text-gray-400 text-sm font-medium mb-2">Downloader Link</label>
+                        <input type="text" id="product-downloader-link-input" placeholder="Downloader Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                    </div>
+                    <div class="col-span-2">
+                        <label for="product-instructions-link-input" class="block text-gray-400 text-sm font-medium mb-2">Instructions Link</label>
+                        <input type="text" id="product-instructions-link-input" placeholder="Instructions Link" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                    </div>
+                    <div class="col-span-2">
+                        <label for="product-status-select" class="block text-gray-400 text-sm font-medium mb-2">Status</label>
+                        <select id="product-status-select" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
+                            <option value="undetected">Undetected</option>
+                            <option value="detected">Detected</option>
+                        </select>
+                    </div>
+                    <div class="col-span-2">
+                        <label for="product-description-input" class="block text-gray-400 text-sm font-medium mb-2">Description</label>
+                        <textarea id="product-description-input" placeholder="Product Description" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 h-24"></textarea>
+                    </div>
+                </div>
+                <button id="add-product-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-4">Add Product</button>
 
-                    <h2 class="text-xl font-bold text-white mt-8 mb-4">Existing Products</h2>
-                    <div class="overflow-x-auto flex-1">
-                        <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
-                            <thead>
-                                <tr>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tl-lg">Product Name</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Stock</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Base Price</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">1 Day Price</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">7 Day Price</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">30 Day Price</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Image</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Downloader</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Instructions</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Status</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tr-lg">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="products-table-body" class="divide-y divide-gray-700">
-                                </tbody>
-                        </table>
-                    </div>
+                <h2 class="text-xl font-bold text-white mt-8 mb-4">Existing Products</h2>
+                <div class="overflow-x-auto flex-1">
+                    <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tl-lg">Product Name</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Stock</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Base Price</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">1 Day Price</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">7 Day Price</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">30 Day Price</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Image</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Downloader</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Instructions</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Status</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tr-lg">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="products-table-body" class="divide-y divide-gray-700">
+                            </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -1108,24 +1095,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     const renderResellersPage = () => {
-        contentArea.innerHTML = `
-            <div class="content-page">
-                <h1 class="text-3xl font-bold text-white mb-6">Manage Users</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col">
-                    <div class="overflow-x-auto flex-1">
-                        <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
-                            <thead>
-                                <tr>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tl-lg">Email/Username</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Role</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Balance</th>
-                                    <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody id="users-table-body" class="divide-y divide-gray-700">
-                                </tbody>
-                        </table>
-                    </div>
+        dynamicContentContainer.innerHTML = `
+            <h1 class="text-3xl font-bold text-white mb-6">Manage Users</h1>
+            <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col">
+                <div class="overflow-x-auto flex-1">
+                    <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
+                        <thead>
+                            <tr>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider rounded-tl-lg">Email/Username</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Role</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Balance</th>
+                                <th class="py-2 px-4 bg-gray-900 text-left text-xs font-semibold text-gray-300 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-table-body" class="divide-y divide-gray-700">
+                            </tbody>
+                    </table>
                 </div>
             </div>
         `;
@@ -1205,7 +1190,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Clear content area before rendering new page
-        contentArea.innerHTML = '';
+        dynamicContentContainer.innerHTML = '';
 
         // Render content based on pageId and role
         switch (pageId) {
