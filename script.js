@@ -90,7 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderDashboardPage = () => {
         dynamicContentContainer.innerHTML = `
-            <div class="flex-1 flex flex-col">
+            <div class="flex-1 flex flex-col min-h-0 h-full">
                 <h1 class="text-3xl font-bold text-white mb-6">Dashboard</h1>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6 flex-shrink-0">
                     <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col items-center justify-center">
@@ -107,8 +107,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 flex flex-col flex-grow">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1 min-h-0">
+                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-2 flex flex-col flex-grow min-h-0">
                         <div class="flex justify-between items-center mb-4">
                             <p class="text-gray-400 text-sm">Last 24 Hours</p>
                             <p class="text-white text-lg font-bold">$0.00</p>
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span>22:00</span>
                         </div>
                     </div>
-                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-1 flex flex-col flex-grow">
+                    <div class="bg-gray-700 p-6 rounded-lg shadow-md col-span-1 lg:col-span-1 flex flex-col flex-grow min-h-0">
                         <h3 class="text-xl font-bold text-white mb-4">Recent Orders</h3>
                         <div id="dashboard-recent-orders" class="flex-1 overflow-y-auto">
                             <p class="text-gray-400">No recent orders.</p>
@@ -174,12 +174,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderBuyKeysPage = () => {
         dynamicContentContainer.innerHTML = `
-            <div class="flex-1 flex flex-col">
+            <div class="flex-1 flex flex-col min-h-0 h-full">
                 <h1 class="text-3xl font-bold text-white mb-6">Buy Keys</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col flex-1 min-h-0">
                     <p class="text-gray-400 text-lg mb-4">Your current balance: <span id="current-balance" class="font-bold text-white">$0.00</span></p>
 
-                    <div id="product-selection-area">
+                    <div id="product-selection-area" class="flex-1 flex flex-col min-h-0">
                         <label class="block text-gray-400 text-sm font-medium mb-2">Select Product</label>
                         <p class="text-gray-500 text-sm mb-2">Click a product card below to select it.</p>
                         <div id="product-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto max-h-64 mb-4 p-2 rounded-md bg-gray-800 border border-gray-600">
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
 
                     <!-- New section for selected product details -->
-                    <div id="selected-product-detail" class="hidden bg-gray-800 p-4 rounded-lg shadow-md mb-6 relative">
+                    <div id="selected-product-detail" class="hidden bg-gray-800 p-4 rounded-lg shadow-md mb-6 relative flex-shrink-0">
                         <button id="back-to-products-btn" class="absolute top-3 right-3 bg-gray-600 hover:bg-gray-700 text-white text-xs font-bold py-1 px-2 rounded-md">
                             Back to Products
                         </button>
@@ -214,12 +214,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
 
                     <!-- Section for key variants -->
-                    <div id="key-variants-container" class="mb-4 hidden">
+                    <div id="key-variants-container" class="mb-4 hidden flex-1 overflow-y-auto">
                         <h3 class="text-xl font-bold text-white mb-4">Select Variants</h3>
                         <!-- Variants will be dynamically loaded here -->
                     </div>
 
-                    <button id="buy-key-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-auto">Buy Key(s)</button>
+                    <button id="buy-key-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-auto flex-shrink-0">Buy Key(s)</button>
                 </div>
             </div>
         `;
@@ -554,17 +554,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderAddFundsPage = () => {
         dynamicContentContainer.innerHTML = `
-            <div class="flex-1 flex flex-col">
+            <div class="flex-1 flex flex-col min-h-0 h-full">
                 <h1 class="text-3xl font-bold text-white mb-6">Add Funds</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col flex-1 min-h-0">
                     <p class="text-gray-400 text-lg mb-4">Your current balance: <span id="add-funds-current-balance" class="font-bold text-white">$0.00</span></p>
-                    <div class="mb-4">
+                    <div class="mb-4 flex-shrink-0">
                         <label for="amount-input" class="block text-gray-400 text-sm font-medium mb-2">Amount to Add ($)</label>
                         <input type="number" id="amount-input" value="10.00" min="1.00" step="0.01" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
                     </div>
-                    <button id="initiate-payment-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-auto">Initiate Payment</button>
+                    <button id="initiate-payment-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-auto flex-shrink-0">Initiate Payment</button>
 
-                    <div id="add-funds-confirmation-area" class="mt-4 hidden flex flex-col items-center">
+                    <div id="add-funds-confirmation-area" class="mt-4 hidden flex flex-col items-center flex-shrink-0">
                         <p class="text-yellow-400 text-md mb-4 text-center">Please proceed to payment to add funds.</p>
                         <button id="proceed-to-stripe-btn" class="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-md">Proceed to Stripe</button>
                     </div>
@@ -615,9 +615,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderManageOrdersPage = () => {
         dynamicContentContainer.innerHTML = `
-            <div class="flex-1 flex flex-col">
+            <div class="flex-1 flex flex-col min-h-0 h-full">
                 <h1 class="text-3xl font-bold text-white mb-6">Manage Orders</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col flex-1 min-h-0">
                     <div class="overflow-x-auto flex-1">
                         <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
                             <thead>
@@ -664,9 +664,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderManageKeysPage = () => {
         dynamicContentContainer.innerHTML = `
-            <div class="flex-1 flex flex-col">
+            <div class="flex-1 flex flex-col min-h-0 h-full">
                 <h1 class="text-3xl font-bold text-white mb-6">Manage Keys</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col flex-1 min-h-0">
                     <div class="overflow-x-auto flex-1">
                         <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
                             <thead>
@@ -717,9 +717,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderSettingsPage = () => {
         dynamicContentContainer.innerHTML = `
-            <div class="flex-1 flex flex-col">
+            <div class="flex-1 flex flex-col min-h-0 h-full">
                 <h1 class="text-3xl font-bold text-white mb-6">Settings</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex items-center justify-center">
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex items-center justify-center flex-1 min-h-0">
                     <p class="text-gray-400 text-lg">Settings content goes here.</p>
                 </div>
             </div>
@@ -728,11 +728,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderProductsPage = () => {
         dynamicContentContainer.innerHTML = `
-            <div class="flex-1 flex flex-col">
+            <div class="flex-1 flex flex-col min-h-0 h-full">
                 <h1 class="text-3xl font-bold text-white mb-6">Products</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col">
-                    <h2 class="text-xl font-bold text-white mb-4">Add New Product</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col flex-1 min-h-0">
+                    <h2 class="text-xl font-bold text-white mb-4 flex-shrink-0">Add New Product</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 flex-shrink-0">
                         <div>
                             <label for="product-name-input" class="block text-gray-400 text-sm font-medium mb-2">Product Name</label>
                             <input type="text" id="product-name-input" placeholder="Product Name" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600">
@@ -781,10 +781,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             <textarea id="product-description-input" placeholder="Product Description" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 h-24"></textarea>
                         </div>
                     </div>
-                    <button id="add-product-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-4">Add Product</button>
+                    <button id="add-product-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-4 flex-shrink-0">Add Product</button>
 
-                    <h2 class="text-xl font-bold text-white mt-8 mb-4">Existing Products</h2>
-                    <div class="overflow-x-auto flex-1">
+                    <h2 class="text-xl font-bold text-white mt-8 mb-4 flex-shrink-0">Existing Products</h2>
+                    <div class="overflow-x-auto flex-1 min-h-0">
                         <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
                             <thead>
                                 <tr>
@@ -862,7 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             <textarea id="edit-product-description-input" placeholder="Product Description" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 h-24"></textarea>
                         </div>
                     </div>
-                    <div class="flex justify-end space-x-4 mt-6">
+                    <div class="flex justify-end space-x-4 mt-6 flex-shrink-0">
                         <button id="cancel-edit-product-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md">Cancel</button>
                         <button id="save-edit-product-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md">Save Changes</button>
                     </div>
@@ -1110,9 +1110,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderResellersPage = () => {
         dynamicContentContainer.innerHTML = `
-            <div class="flex-1 flex flex-col">
+            <div class="flex-1 flex flex-col min-h-0 h-full">
                 <h1 class="text-3xl font-bold text-white mb-6">Manage Users</h1>
-                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col">
+                <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col flex-1 min-h-0">
                     <div class="overflow-x-auto flex-1">
                         <table class="min-w-full bg-gray-800 rounded-lg overflow-hidden">
                             <thead>
