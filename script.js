@@ -178,7 +178,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="bg-gray-700 p-6 rounded-lg shadow-md flex flex-col h-full">
                     <p class="text-gray-400 text-lg mb-4">Your current balance: <span id="current-balance" class="font-bold text-white">$0.00</span></p>
 
-                    <div class="mb-4">
+                    <div id="product-selection-area">
                         <label class="block text-gray-400 text-sm font-medium mb-2">Select Product</label>
                         <p class="text-gray-500 text-sm mb-2">Click a product card below to select it.</p>
                         <div id="product-cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 overflow-y-auto max-h-64 mb-4 p-2 rounded-md bg-gray-800 border border-gray-600">
@@ -187,7 +187,32 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
 
-                    <!-- New section for key variants -->
+                    <!-- New section for selected product details -->
+                    <div id="selected-product-detail" class="hidden bg-gray-800 p-4 rounded-lg shadow-md mb-6 relative">
+                        <button id="back-to-products-btn" class="absolute top-3 right-3 bg-gray-600 hover:bg-gray-700 text-white text-xs font-bold py-1 px-2 rounded-md">
+                            Back to Products
+                        </button>
+                        <div class="flex items-center space-x-4 mb-4">
+                            <img id="product-detail-image" src="https://placehold.co/120x80/374151/ffffff?text=Product" alt="Product Image" class="w-24 h-auto rounded-md border border-gray-600">
+                            <div>
+                                <h2 id="product-detail-name" class="text-xl font-bold text-white">Product Name</h2>
+                                <p id="product-detail-description" class="text-gray-400 text-sm">No description available.</p>
+                            </div>
+                            <span id="product-detail-status" class="ml-auto font-bold text-green-500"></span>
+                        </div>
+                        <div class="flex space-x-4 text-sm text-indigo-400">
+                            <a id="product-detail-downloader-link" href="#" target="_blank" class="hover:underline flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Download
+                            </a>
+                            <a id="product-detail-instructions-link" href="#" target="_blank" class="hover:underline flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                                Instructions
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Section for key variants -->
                     <div id="key-variants-container" class="mb-4 hidden">
                         <h3 class="text-xl font-bold text-white mb-4">Select Variants</h3>
                         <!-- Variants will be dynamically loaded here -->
@@ -198,16 +223,29 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
+        const productSelectionArea = document.getElementById('product-selection-area');
         const productCardsContainer = document.getElementById('product-cards-container');
-        const keyVariantsContainer = document.getElementById('key-variants-container'); // New element
+        const selectedProductDetail = document.getElementById('selected-product-detail');
+        const keyVariantsContainer = document.getElementById('key-variants-container');
         const buyKeyBtn = document.getElementById('buy-key-btn');
         const currentBalanceDisplay = document.getElementById('current-balance');
+        const backToProductsBtn = document.getElementById('back-to-products-btn');
+
+        const productDetailImage = document.getElementById('product-detail-image');
+        const productDetailName = document.getElementById('product-detail-name');
+        const productDetailDescription = document.getElementById('product-detail-description');
+        const productDetailStatus = document.getElementById('product-detail-status');
+        const productDetailDownloaderLink = document.getElementById('product-detail-downloader-link');
+        const productDetailInstructionsLink = document.getElementById('product-detail-instructions-link');
+
 
         let selectedProduct = null; // To store the currently selected product object
 
-        // Reset selectedProduct and hide variants container on page load
+        // Reset state on page load
         selectedProduct = null;
-        keyVariantsContainer.classList.add('hidden'); // Ensure it's hidden initially
+        productSelectionArea.classList.remove('hidden');
+        selectedProductDetail.classList.add('hidden');
+        keyVariantsContainer.classList.add('hidden');
 
         const loggedInUserEmail = localStorage.getItem('loggedInUser');
         let currentUser = dataStore.users.find(user => user.email === loggedInUserEmail); // Get a mutable reference
@@ -215,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentBalanceDisplay.textContent = `$${currentUser.balance.toFixed(2)}`;
         }
 
-        // Function to render product cards (remains largely the same)
+        // Function to render product cards
         const renderProductCards = () => {
             console.log('Rendering product cards. Products in dataStore:', dataStore.products);
             productCardsContainer.innerHTML = ''; // Clear existing cards
@@ -274,6 +312,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     const productName = card.dataset.productName;
                     selectedProduct = dataStore.products.find(p => p.name === productName);
                     console.log('Selected product set to:', selectedProduct);
+
+                    // Show selected product details and hide product cards
+                    productSelectionArea.classList.add('hidden');
+                    selectedProductDetail.classList.remove('hidden');
+                    keyVariantsContainer.classList.remove('hidden'); // Show variants container
+
+                    // Populate selected product details
+                    productDetailImage.src = selectedProduct.imageUrl || 'https://placehold.co/120x80/374151/ffffff?text=Product';
+                    productDetailName.textContent = selectedProduct.name;
+                    productDetailDescription.textContent = selectedProduct.description || 'No description available.'; // Assuming a description field
+                    productDetailStatus.textContent = selectedProduct.status.charAt(0).toUpperCase() + selectedProduct.status.slice(1);
+                    productDetailStatus.className = `ml-auto font-bold ${selectedProduct.status === 'undetected' ? 'text-green-500' : 'text-red-500'}`;
+
+                    if (selectedProduct.downloaderLink) {
+                        productDetailDownloaderLink.href = selectedProduct.downloaderLink;
+                        productDetailDownloaderLink.classList.remove('hidden');
+                    } else {
+                        productDetailDownloaderLink.classList.add('hidden');
+                    }
+                    if (selectedProduct.instructionsLink) {
+                        productDetailInstructionsLink.href = selectedProduct.instructionsLink;
+                        productDetailInstructionsLink.classList.remove('hidden');
+                    } else {
+                        productDetailInstructionsLink.classList.add('hidden');
+                    }
+
                     renderKeyVariants(); // Render variants based on selection
                 });
             });
@@ -334,6 +398,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
         };
+
+        // Event listener for "Back to Products" button
+        backToProductsBtn.addEventListener('click', () => {
+            selectedProduct = null; // Clear selected product
+            productSelectionArea.classList.remove('hidden'); // Show product cards
+            selectedProductDetail.classList.add('hidden'); // Hide selected product details
+            keyVariantsContainer.classList.add('hidden'); // Hide variants
+            renderProductCards(); // Re-render product cards (to reset selection)
+        });
+
 
         // Initial render of product cards
         renderProductCards();
@@ -701,6 +775,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <option value="detected">Detected</option>
                             </select>
                         </div>
+                        <div class="col-span-2">
+                            <label for="product-description-input" class="block text-gray-400 text-sm font-medium mb-2">Description</label>
+                            <textarea id="product-description-input" placeholder="Product Description" class="w-full p-2 rounded-md bg-gray-800 text-white border border-gray-600 h-24"></textarea>
+                        </div>
                     </div>
                     <button id="add-product-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-md mt-4">Add Product</button>
 
@@ -778,6 +856,10 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <option value="detected">Detected</option>
                             </select>
                         </div>
+                        <div class="col-span-2">
+                            <label for="edit-product-description-input" class="block text-gray-400 text-sm font-medium mb-2">Description</label>
+                            <textarea id="edit-product-description-input" placeholder="Product Description" class="w-full p-2 rounded-md bg-gray-700 text-white border border-gray-600 h-24"></textarea>
+                        </div>
                     </div>
                     <div class="flex justify-end space-x-4 mt-6">
                         <button id="cancel-edit-product-btn" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded-md">Cancel</button>
@@ -800,6 +882,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const productDownloaderLinkInput = document.getElementById('product-downloader-link-input');
         const productInstructionsLinkInput = document.getElementById('product-instructions-link-input');
         const productStatusSelect = document.getElementById('product-status-select');
+        const productDescriptionInput = document.getElementById('product-description-input');
+
 
         const addProductBtn = document.getElementById('add-product-btn');
         const productsTableBody = document.getElementById('products-table-body');
@@ -820,6 +904,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const editProductDownloaderLinkInput = document.getElementById('edit-product-downloader-link-input');
         const editProductInstructionsLinkInput = document.getElementById('edit-product-instructions-link-input');
         const editProductStatusSelect = document.getElementById('edit-product-status-select');
+        const editProductDescriptionInput = document.getElementById('edit-product-description-input');
         const saveEditProductBtn = document.getElementById('save-edit-product-btn');
         const cancelEditProductBtn = document.getElementById('cancel-edit-product-btn');
 
@@ -881,6 +966,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     editProductDownloaderLinkInput.value = product.downloaderLink || '';
                     editProductInstructionsLinkInput.value = product.instructionsLink || '';
                     editProductStatusSelect.value = product.status;
+                    editProductDescriptionInput.value = product.description || '';
 
                     // Show the modal
                     productEditModal.classList.remove('hidden');
@@ -917,6 +1003,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const downloaderLink = productDownloaderLinkInput.value.trim();
             const instructionsLink = productInstructionsLinkInput.value.trim();
             const status = productStatusSelect.value;
+            const description = productDescriptionInput.value.trim();
 
 
             if (!name || isNaN(stock) || stock < 0 || isNaN(price) || price < 0) {
@@ -945,7 +1032,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 imageUrl,
                 downloaderLink,
                 instructionsLink,
-                status
+                status,
+                description // Add description to the product object
             });
             saveDataToLocalStorage();
             renderTable();
@@ -963,6 +1051,7 @@ document.addEventListener('DOMContentLoaded', () => {
             productDownloaderLinkInput.value = '';
             productInstructionsLinkInput.value = '';
             productStatusSelect.value = 'undetected'; // Reset to default
+            productDescriptionInput.value = '';
         });
 
         // Event listener for saving changes in the modal
@@ -988,6 +1077,8 @@ document.addEventListener('DOMContentLoaded', () => {
             product.downloaderLink = editProductDownloaderLinkInput.value.trim();
             product.instructionsLink = editProductInstructionsLinkInput.value.trim();
             product.status = editProductStatusSelect.value;
+            product.description = editProductDescriptionInput.value.trim();
+
 
             // Basic validation for updated values
             if (isNaN(product.stock) || product.stock < 0 || isNaN(product.price) || product.price < 0) {
@@ -1303,7 +1394,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 imageUrl: 'https://placehold.co/120x80/374151/ffffff?text=ZeroDay', // Example image
                 downloaderLink: 'https://example.com/zeroday-downloader',
                 instructionsLink: 'https://example.com/zeroday-instructions',
-                status: 'undetected' // Default status
+                status: 'undetected', // Default status
+                description: 'A powerful tool for various tasks.' // Default description
             },
             {
                 name: 'Example Product (No API Keys)',
@@ -1314,7 +1406,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 imageUrl: 'https://placehold.co/120x80/374151/ffffff?text=Example',
                 downloaderLink: '',
                 instructionsLink: '',
-                status: 'detected' // Default status
+                status: 'detected', // Default status
+                description: 'A simple example product without API key integration.' // Default description
             }
         );
         saveDataToLocalStorage();
@@ -1328,6 +1421,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (product.status === undefined) product.status = 'undetected'; // Default to undetected
             if (product.keyPrices === undefined) product.keyPrices = {}; // Ensure keyPrices exists
             if (product.keyLinks === undefined) product.keyLinks = {}; // Ensure keyLinks exists
+            if (product.description === undefined) product.description = 'No description available.'; // Ensure description exists
         });
         saveDataToLocalStorage(); // Save any updates to existing products
     }
