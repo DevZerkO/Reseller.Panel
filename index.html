@@ -38,8 +38,8 @@
             -moz-osx-font-smoothing: grayscale;
             background-color: #1a202c; /* Dark background */
             color: #e2e8f0; /* Light text color */
-            display: flex; /* Ensure body is a flex container */
-            flex-direction: row; /* Layout sidebar and main content side-by-side */
+            /* Removed display: flex and flex-direction: row from here.
+               These will be applied to body by JavaScript when main-panel is shown. */
         }
 
         /* Active link styling for sidebar */
@@ -81,7 +81,7 @@
         }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden">
+<body class="h-screen overflow-hidden">
 
     <!-- Login Page Container -->
     <!-- Changed positioning to fixed inset-0 z-50 for full-screen overlay and removed initial 'hidden' -->
