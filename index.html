@@ -84,7 +84,8 @@
 <body class="flex h-screen overflow-hidden">
 
     <!-- Login Page Container -->
-    <div id="login-container" class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-900 to-black p-4">
+    <!-- Changed positioning to fixed inset-0 z-50 for full-screen overlay and removed initial 'hidden' -->
+    <div id="login-container" class="w-full h-full fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black p-4">
         <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-96 max-w-md border border-gray-700 transform transition-all duration-300 hover:scale-105">
             <p class="text-gray-400 text-sm text-center mb-6 font-light">Staff can assist with finding your login email</p>
             <h2 class="text-3xl font-extrabold text-white mb-8 text-center tracking-wide">Welcome Back</h2>
@@ -198,7 +199,7 @@
             </header>
 
             <!-- Content Pages -->
-            <div id="content-area" class="flex-1 px-2 py-4 overflow-y-auto flex flex-col min-h-0">
+            <div id="content-area" class="flex-1 px-0 py-4 overflow-y-auto flex flex-col min-h-0">
                 <!-- This div will now hold the dynamically loaded page content and apply the content-page styling -->
                 <div id="dynamic-content-container" class="content-page flex-1 min-h-0">
                     <!-- Content will be dynamically loaded here by JavaScript functions -->
