@@ -1,4 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Content Loaded. Script is running.'); // New log
+
     // --- Global Data Store (Simulated Backend) ---
     // IMPORTANT: In a real application, this data would be stored securely in a database
     // and accessed via a server-side API, not directly in client-side localStorage.
@@ -1249,6 +1251,9 @@ document.addEventListener('DOMContentLoaded', () => {
         mainPanel.classList.remove('hidden'); // Show main panel
         mainPanel.classList.add('flex'); // Ensure main panel is flex for layout
 
+        // Add flex properties to the body when the main panel is shown
+        document.body.classList.add('flex', 'flex-row');
+
         loggedInUsernameDisplay.textContent = username;
         userRoleDisplay.textContent = role.charAt(0).toUpperCase() + role.slice(1);
 
@@ -1285,6 +1290,9 @@ document.addEventListener('DOMContentLoaded', () => {
         mainPanel.classList.remove('flex'); // Ensure flex is removed
         loginContainer.classList.remove('hidden'); // Show login container
         loginContainer.classList.add('flex'); // Ensure login container is flex for centering
+
+        // Remove flex properties from the body when the login panel is shown
+        document.body.classList.remove('flex', 'flex-row');
 
         loginPasswordInput.value = ''; // Clear password on logout for security
         localStorage.removeItem('loggedInUser');
