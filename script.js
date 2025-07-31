@@ -1251,8 +1251,8 @@ document.addEventListener('DOMContentLoaded', () => {
         mainPanel.classList.remove('hidden'); // Show main panel
         mainPanel.classList.add('flex'); // Ensure main panel is flex for layout
 
-        // Add flex properties to the body when the main panel is shown
-        document.body.classList.add('flex', 'flex-row');
+        // Body's flex properties are now static in CSS, no dynamic changes here
+        // document.body.classList.add('flex', 'flex-row'); // REMOVED
 
         loggedInUsernameDisplay.textContent = username;
         userRoleDisplay.textContent = role.charAt(0).toUpperCase() + role.slice(1);
@@ -1291,8 +1291,8 @@ document.addEventListener('DOMContentLoaded', () => {
         loginContainer.classList.remove('hidden'); // Show login container
         loginContainer.classList.add('flex'); // Ensure login container is flex for centering
 
-        // Remove flex properties from the body when the login panel is shown
-        document.body.classList.remove('flex', 'flex-row');
+        // Body's flex properties are now static in CSS, no dynamic changes here
+        // document.body.classList.remove('flex', 'flex-row'); // REMOVED
 
         loginPasswordInput.value = ''; // Clear password on logout for security
         localStorage.removeItem('loggedInUser');
