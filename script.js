@@ -1295,6 +1295,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Event Listeners ---
 
     registerBtn.addEventListener('click', () => {
+        console.log('Register button clicked!'); // Debug log
         const email = loginEmailInput.value.trim();
         const password = loginPasswordInput.value.trim();
 
@@ -1316,6 +1317,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     loginBtn.addEventListener('click', () => {
+        console.log('Login button clicked!'); // Debug log
         const email = loginEmailInput.value.trim();
         const password = loginPasswordInput.value.trim();
 
@@ -1451,6 +1453,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     } else {
         // Ensure only the login container is visible on initial load if no user is logged in
-        showLogin();
+        showLogin(); // Explicitly call showLogin at the end of DOMContentLoaded
     }
 });
