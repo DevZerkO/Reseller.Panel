@@ -38,8 +38,9 @@
             -moz-osx-font-smoothing: grayscale;
             background-color: #1a202c; /* Dark background */
             color: #e2e8f0; /* Light text color */
-            /* Removed display: flex and flex-direction: row from here.
-               These will be applied to body by JavaScript when main-panel is shown. */
+            /* Crucial: Always set body as a flex container to manage its direct children (login/main panel) */
+            display: flex;
+            flex-direction: row;
         }
 
         /* Active link styling for sidebar */
