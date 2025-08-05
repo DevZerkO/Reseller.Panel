@@ -38,9 +38,8 @@
             -moz-osx-font-smoothing: grayscale;
             background-color: #1a202c; /* Dark background */
             color: #e2e8f0; /* Light text color */
-            /* Crucial: Always set body as a flex container to manage its direct children (login/main panel) */
-            display: flex;
-            flex-direction: row;
+            /* Removed display: flex and flex-direction: row from here.
+               These will be applied to body by JavaScript when main-panel is shown, or not needed for login. */
         }
 
         /* Active link styling for sidebar */
@@ -85,7 +84,7 @@
 <body class="h-screen overflow-hidden">
 
     <!-- Login Page Container -->
-    <!-- Changed positioning to fixed inset-0 z-50 for full-screen overlay and removed initial 'hidden' -->
+    <!-- Initial state: display flex for login, as it's the first thing to show -->
     <div id="login-container" class="w-full h-full fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black p-4">
         <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-96 max-w-md border border-gray-700 transform transition-all duration-300 hover:scale-105">
             <p class="text-gray-400 text-sm text-center mb-6 font-light">Staff can assist with finding your login email</p>
@@ -120,8 +119,8 @@
         </div>
     </div>
 
-    <!-- Main Panel (Initially hidden by script.js) -->
-    <div id="main-panel" class="flex-1 flex flex-col hidden">
+    <!-- Main Panel (Initially hidden by script.js, will be flex when shown) -->
+    <div id="main-panel" class="flex-1 flex flex-col" style="display: none;">
         <!-- Sidebar -->
         <aside class="w-64 bg-gray-900 text-gray-300 flex flex-col border-r border-gray-700 shadow-lg">
             <div class="flex flex-col flex-1">
