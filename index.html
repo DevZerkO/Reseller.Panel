@@ -27,8 +27,9 @@
         }
 
         /* Base styles for html and body */
+        /* Crucial for a full-height layout */
         html, body {
-            height: 100%; /* Ensure html and body take full viewport height */
+            height: 100%;
             margin: 0;
             padding: 0;
         }
@@ -39,11 +40,18 @@
             -moz-osx-font-smoothing: grayscale;
             background-color: #1a202c; /* Dark background */
             color: #e2e8f0; /* Light text color */
-            /* CRITICAL: Set body to a flex container for the main layout */
+            
+            /* CRITICAL: body is the main flex container for the entire layout */
             display: flex;
-            flex-direction: row; /* Layout sidebar and main content side-by-side */
-            /* CRITICAL: Prevent the body itself from scrolling. The content area will handle it. */
-            overflow: hidden;
+            flex-direction: row;
+            overflow: hidden; /* Prevents the whole page from scrolling */
+        }
+        
+        /* The main panel wrapper needs to take the full remaining space */
+        #main-panel {
+            display: none; /* Initially hidden */
+            flex: 1; /* This is what allows it to grow and take all the available space */
+            flex-direction: column;
         }
 
         /* Active link styling for sidebar */
@@ -57,41 +65,39 @@
         .nav-link.active svg {
             color: #6366f1; /* Active icon color */
         }
-
-        /* Ensure main content area takes full height and is a flex column */
+        
+        /* Main content area container */
         main {
-            height: 100%; /* CRUCIAL: Ensure main takes full height of its parent */
+            height: 100%; /* Crucial to take full height of its parent */
             display: flex;
             flex-direction: column;
-            flex-grow: 1; /* Allows main to grow within the body's flex layout */
-            min-height: 0; /* Allow flex item to shrink */
+            flex-grow: 1;
+            min-height: 0; /* Prevents overflow issues in flex layouts */
         }
-
-        /* Ensure content pages take full height of their parent */
-        /* This class is applied to #dynamic-content-container */
-        .content-page {
-            display: flex;
-            flex-direction: column;
-            flex-grow: 1; /* Allow content page to grow */
-            min-height: 0; /* Allow flex item to shrink */
-        }
-
-        /* Ensure the main content area itself is a flex container and grows */
+        
+        /* The container for the dynamic content */
         #content-area {
+            flex: 1; /* CRITICAL: This is the element that grows to fill space and will handle the scrolling */
+            overflow-y: auto; /* This enables vertical scrolling for this specific section */
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
-            flex-grow: 1; /* This is crucial for content to expand vertically */
-            min-height: 0; /* Allow flex item to shrink */
-            /* CRITICAL: This is the element that should scroll, keeping the sidebar and header fixed */
-            overflow-y: auto;
-            /* Add some padding for better spacing */
-            padding: 1.5rem;
+            min-height: 0;
+            
+            /* CRITICAL FIX: Explicitly align content to the top */
+            justify-content: flex-start;
         }
+        
+        /* Ensure the dynamic content itself fills the space */
+        .content-card {
+            flex: 1;
+            min-height: 0;
+        }
+
     </style>
 </head>
 <body>
     <!-- Login Page Container -->
-    <!-- Initial state: display flex for login, as it's the first thing to show -->
     <div id="login-container" class="w-full h-full fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black p-4">
         <div class="bg-gray-800 p-8 rounded-xl shadow-2xl w-96 max-w-md border border-gray-700 transform transition-all duration-300 hover:scale-105">
             <p class="text-gray-400 text-sm text-center mb-6 font-light">Staff can assist with finding your login email</p>
@@ -101,7 +107,6 @@
                 <label for="login-email" class="block text-gray-300 text-sm font-medium mb-2">Email/Username</label>
                 <div class="relative">
                     <input type="text" id="login-email" class="w-full p-3 pl-12 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-3 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200" placeholder="email@example.com">
-                    <!-- Icon for email/username -->
                     <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path></svg>
                 </div>
             </div>
@@ -110,7 +115,6 @@
                 <label for="login-password" class="block text-gray-300 text-sm font-medium mb-2">Password</label>
                 <div class="relative">
                     <input type="password" id="login-password" class="w-full p-3 pl-12 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:ring-3 focus:ring-indigo-500 focus:border-indigo-500 transition-all duration-200" placeholder="Encrypted">
-                    <!-- Icon for password -->
                     <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v3h8z"></path></svg>
                 </div>
             </div>
@@ -126,8 +130,8 @@
         </div>
     </div>
 
-    <!-- Main Panel (Initially hidden by script.js, will be flex when shown) -->
-    <div id="main-panel" class="flex-1 flex flex-col" style="display: none;">
+    <!-- Main Panel (Initially hidden, will be flex when shown) -->
+    <div id="main-panel" class="flex-1 flex flex-col">
         <!-- Sidebar -->
         <aside class="w-64 bg-gray-900 text-gray-300 flex flex-col border-r border-gray-700 shadow-lg">
             <div class="flex flex-col flex-1">
@@ -192,25 +196,19 @@
         <!-- Main Content Area -->
         <main class="flex-1 flex flex-col bg-gray-800 overflow-hidden min-h-0">
             <!-- Top Bar (Header) -->
-            <header class="h-16 bg-gray-900 border-b border-gray-700 flex items-center justify-end px-6 shadow-lg">
-                <!-- Notification Icon -->
+            <header class="h-16 bg-gray-900 border-b border-gray-700 flex items-center justify-end px-6 shadow-lg flex-shrink-0">
                 <div class="relative ml-auto mr-4">
                     <button class="text-gray-400 hover:text-white focus:outline-none transition-colors duration-200">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
                     </button>
                     <span class="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-gray-900"></span>
                 </div>
-
-                <!-- User Profile and Logout (in header for smaller screens or alternative layout) -->
-                <!-- This section is now moved to the sidebar for a cleaner top bar -->
             </header>
 
-            <!-- Content Pages -->
-            <div id="content-area" class="flex-1 px-0 py-4 overflow-y-auto flex flex-col min-h-0">
-                <!-- This div will now hold the dynamically loaded page content and apply the content-page styling -->
-                <div id="dynamic-content-container" class="content-page flex-1 min-h-0">
-                    <!-- Content will be dynamically loaded here by JavaScript functions -->
-                </div>
+            <!-- Content Pages Wrapper -->
+            <div id="content-area">
+                <!-- Content will be dynamically loaded here by JavaScript functions -->
+                <div id="dynamic-content-container" class="flex-1 min-h-0"></div>
             </div>
         </main>
     </div>
@@ -223,7 +221,181 @@
         </div>
     </div>
 
-    <!-- Link to external JavaScript file -->
-    <script src="script.js"></script>
+    <script>
+        // --- Page Content Modules ---
+        const pageContent = {
+            dashboard: `
+                <div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">
+                    <h1 class="text-3xl font-extrabold text-white mb-4">Dashboard</h1>
+                    <p class="text-gray-400 mb-6">Welcome back! Here's a quick overview of your account.</p>
+                    
+                    <!-- Dummy Content to force scrolling -->
+                    <div class="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+                        <div class="bg-gray-800 p-5 rounded-lg shadow-md border border-gray-700">
+                            <h3 class="text-lg font-semibold text-indigo-400 mb-2">Total Sales</h3>
+                            <p class="text-3xl font-bold text-white">$12,345.00</p>
+                            <p class="text-sm text-gray-500 mt-1">+12% from last month</p>
+                        </div>
+                        <div class="bg-gray-800 p-5 rounded-lg shadow-md border border-gray-700">
+                            <h3 class="text-lg font-semibold text-indigo-400 mb-2">Active Keys</h3>
+                            <p class="text-3xl font-bold text-white">58</p>
+                            <p class="text-sm text-gray-500 mt-1">2 new keys activated today</p>
+                        </div>
+                        <div class="bg-gray-800 p-5 rounded-lg shadow-md border border-gray-700">
+                            <h3 class="text-lg font-semibold text-indigo-400 mb-2">Wallet Balance</h3>
+                            <p class="text-3xl font-bold text-white">$450.75</p>
+                            <p class="text-sm text-gray-500 mt-1">Available for purchases</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-8">
+                        <h3 class="text-2xl font-bold text-white mb-4">Recent Activity</h3>
+                        <div class="bg-gray-800 p-5 rounded-lg shadow-md border border-gray-700">
+                            <ul class="space-y-4">
+                                ${Array(25).fill().map((_, i) => `
+                                    <li class="flex justify-between items-center py-2 border-b border-gray-700 last:border-b-0">
+                                        <div class="flex items-center">
+                                            <svg class="w-6 h-6 text-green-500 mr-3" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path></svg>
+                                            <div>
+                                                <p class="text-white font-medium">Order #${1000 + i} Processed</p>
+                                                <p class="text-gray-500 text-sm">You successfully purchased 5 keys.</p>
+                                            </div>
+                                        </div>
+                                        <span class="text-sm text-gray-500">2023-01-01</span>
+                                    </li>
+                                `).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `,
+            'buy-keys': `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">Buy Keys content...</div>`,
+            'add-funds': `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">Add Funds content...</div>`,
+            'manage-orders': `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">Manage Orders content...</div>`,
+            'manage-keys': `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">Manage Keys content...</div>`,
+            settings: `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">Settings content...</div>`,
+            products: `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">Admin Products content...</div>`,
+            resellers: `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">Admin Resellers content...</div>`,
+        };
+
+        // --- Core Application Logic ---
+        document.addEventListener('DOMContentLoaded', () => {
+            const loginContainer = document.getElementById('login-container');
+            const mainPanel = document.getElementById('main-panel');
+            const loginBtn = document.getElementById('login-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+            const navLinks = document.querySelectorAll('.nav-link');
+            const contentContainer = document.getElementById('dynamic-content-container');
+            const loggedInUsername = document.getElementById('logged-in-username');
+            const userRole = document.getElementById('user-role');
+            const messageBox = document.getElementById('message-box');
+            const messageText = document.getElementById('message-text');
+            const messageCloseBtn = document.getElementById('message-close-btn');
+
+            let currentUser = {
+                username: 'sylxisthebest',
+                role: 'reseller' // Can be 'reseller' or 'admin'
+            };
+
+            function showMessage(message) {
+                messageText.textContent = message;
+                messageBox.classList.remove('hidden');
+            }
+
+            messageCloseBtn.addEventListener('click', () => {
+                messageBox.classList.add('hidden');
+            });
+
+            // Login function
+            function handleLogin() {
+                const emailInput = document.getElementById('login-email').value;
+                const passwordInput = document.getElementById('login-password').value;
+
+                if (emailInput === 'admin' && passwordInput === 'admin') {
+                    currentUser.role = 'admin';
+                    currentUser.username = 'Administrator';
+                    showMainPanel();
+                } else if (emailInput === 'reseller' && passwordInput === 'reseller') {
+                    currentUser.role = 'reseller';
+                    currentUser.username = 'sylxisthebest';
+                    showMainPanel();
+                } else {
+                    showMessage('Invalid credentials. Please try "reseller"/"reseller" or "admin"/"admin".');
+                }
+            }
+
+            // Show main panel and hide login screen
+            function showMainPanel() {
+                loginContainer.style.display = 'none';
+                mainPanel.style.display = 'flex';
+                loggedInUsername.textContent = currentUser.username;
+                userRole.textContent = currentUser.role.charAt(0).toUpperCase() + currentUser.role.slice(1);
+                updateNavigation();
+                loadPage(window.location.hash || '#dashboard');
+            }
+
+            // Hide main panel and show login screen
+            function handleLogout() {
+                mainPanel.style.display = 'none';
+                loginContainer.style.display = 'flex';
+                // Clear inputs
+                document.getElementById('login-email').value = '';
+                document.getElementById('login-password').value = '';
+                window.location.hash = ''; // Reset hash
+            }
+
+            // Filter navigation links based on user role
+            function updateNavigation() {
+                navLinks.forEach(link => {
+                    const requiredRole = link.dataset.role;
+                    if (requiredRole === 'reseller' || requiredRole === currentUser.role) {
+                        link.classList.remove('hidden');
+                    } else {
+                        link.classList.add('hidden');
+                    }
+                });
+            }
+
+            // Function to load page content based on hash
+            function loadPage(hash) {
+                const pageId = hash.substring(1) || 'dashboard';
+                const contentHtml = pageContent[pageId];
+
+                // Clear active class from all links
+                navLinks.forEach(link => link.classList.remove('active'));
+
+                // Add active class to the current link
+                const activeLink = document.querySelector(`.nav-link[data-page="${pageId}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+
+                if (contentHtml) {
+                    contentContainer.innerHTML = contentHtml;
+                } else {
+                    contentContainer.innerHTML = `<div class="p-6 text-center text-gray-500">Page not found.</div>`;
+                }
+            }
+
+            // Event listeners
+            loginBtn.addEventListener('click', handleLogin);
+            logoutBtn.addEventListener('click', handleLogout);
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    window.location.hash = link.getAttribute('href');
+                });
+            });
+
+            window.addEventListener('hashchange', () => {
+                loadPage(window.location.hash);
+            });
+
+            // Initial state check
+            if (window.location.hash) {
+                showMainPanel();
+            }
+        });
+    </script>
 </body>
 </html>
