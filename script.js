@@ -1246,13 +1246,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to show the main panel and hide login
     const showPanel = (username, role) => {
         console.log("showPanel called. Showing main panel."); // Debug log
-        loginContainer.classList.add('hidden'); // Hide login container
-        loginContainer.classList.remove('flex'); // Ensure flex is removed
-        mainPanel.classList.remove('hidden'); // Show main panel
-        mainPanel.classList.add('flex'); // Ensure main panel is flex for layout
+        loginContainer.style.display = 'none'; // Hide login container
+        mainPanel.style.display = 'flex'; // Show main panel
 
-        // Body's flex properties are now static in CSS, no dynamic changes here
-        // document.body.classList.add('flex', 'flex-row'); // REMOVED
+        // When main panel is shown, the body needs to be a flex container for the sidebar and content
+        document.body.style.display = 'flex';
+        document.body.style.flexDirection = 'row';
+
 
         loggedInUsernameDisplay.textContent = username;
         userRoleDisplay.textContent = role.charAt(0).toUpperCase() + role.slice(1);
@@ -1286,13 +1286,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Function to show the login page and hide main panel
     const showLogin = () => {
         console.log("showLogin called. Showing login container."); // Debug log
-        mainPanel.classList.add('hidden'); // Hide main panel
-        mainPanel.classList.remove('flex'); // Ensure flex is removed
-        loginContainer.classList.remove('hidden'); // Show login container
-        loginContainer.classList.add('flex'); // Ensure login container is flex for centering
+        mainPanel.style.display = 'none'; // Hide main panel
+        loginContainer.style.display = 'flex'; // Show login container
 
-        // Body's flex properties are now static in CSS, no dynamic changes here
-        // document.body.classList.remove('flex', 'flex-row'); // REMOVED
+        // When login is shown, the body does not need to be a flex container for the main elements
+        // The login container is fixed and overlays everything.
+        document.body.style.display = ''; // Revert to default display (block)
+        document.body.style.flexDirection = ''; // Revert to default flex-direction
+
 
         loginPasswordInput.value = ''; // Clear password on logout for security
         localStorage.removeItem('loggedInUser');
