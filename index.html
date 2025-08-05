@@ -75,23 +75,19 @@
             min-height: 0; /* Prevents overflow issues in flex layouts */
         }
         
-        /* The container for the dynamic content */
+        /* THE ONE AND ONLY FIX: Align content to the top */
         #content-area {
-            flex: 1; /* CRITICAL: This is the element that grows to fill space and will handle the scrolling */
-            overflow-y: auto; /* This enables vertical scrolling for this specific section */
+            flex: 1; 
+            overflow-y: auto; 
             padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
             min-height: 0;
-            
-            /* CRITICAL FIX: Explicitly align content to the top */
-            justify-content: flex-start;
+            display: flex;
+            flex-direction: column; /* THIS IS THE FIX: Stack contents vertically */
+            justify-content: flex-start; /* THIS IS THE FIX: Align content to the top */
         }
         
-        /* Ensure the dynamic content itself fills the space */
-        .content-card {
-            flex: 1;
-            min-height: 0;
+        #dynamic-content-container {
+            height: 100%;
         }
 
     </style>
@@ -208,7 +204,7 @@
             <!-- Content Pages Wrapper -->
             <div id="content-area">
                 <!-- Content will be dynamically loaded here by JavaScript functions -->
-                <div id="dynamic-content-container" class="flex-1 min-h-0"></div>
+                <div id="dynamic-content-container"></div>
             </div>
         </main>
     </div>
@@ -225,7 +221,7 @@
         // --- Page Content Modules ---
         const pageContent = {
             dashboard: `
-                <div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">
+                <div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700">
                     <h1 class="text-3xl font-extrabold text-white mb-4">Dashboard</h1>
                     <p class="text-gray-400 mb-6">Welcome back! Here's a quick overview of your account.</p>
                     
@@ -269,13 +265,13 @@
                     </div>
                 </div>
             `,
-            'buy-keys': `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">Buy Keys content...</div>`,
-            'add-funds': `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">Add Funds content...</div>`,
-            'manage-orders': `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">Manage Orders content...</div>`,
-            'manage-keys': `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">Manage Keys content...</div>`,
-            settings: `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">Settings content...</div>`,
-            products: `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">Admin Products content...</div>`,
-            resellers: `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 content-card">Admin Resellers content...</div>`,
+            'buy-keys': `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700">Buy Keys content...</div>`,
+            'add-funds': `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700">Add Funds content...</div>`,
+            'manage-orders': `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700">Manage Orders content...</div>`,
+            'manage-keys': `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700">Manage Keys content...</div>`,
+            settings: `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700">Settings content...</div>`,
+            products: `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700">Admin Products content...</div>`,
+            resellers: `<div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700">Admin Resellers content...</div>`,
         };
 
         // --- Core Application Logic ---
@@ -293,8 +289,8 @@
             const messageCloseBtn = document.getElementById('message-close-btn');
 
             let currentUser = {
-                username: 'sylxisthebest',
-                role: 'reseller' // Can be 'reseller' or 'admin'
+                username: '',
+                role: ''
             };
 
             function showMessage(message) {
