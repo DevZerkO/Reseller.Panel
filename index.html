@@ -26,6 +26,7 @@
             background: #6b7280; /* Even lighter on hover */
         }
 
+        /* Base styles for html and body */
         html, body {
             height: 100%; /* Ensure html and body take full viewport height */
             margin: 0;
@@ -38,8 +39,11 @@
             -moz-osx-font-smoothing: grayscale;
             background-color: #1a202c; /* Dark background */
             color: #e2e8f0; /* Light text color */
-            /* Removed display: flex and flex-direction: row from here.
-               These will be applied to body by JavaScript when main-panel is shown, or not needed for login. */
+            /* CRITICAL: Set body to a flex container for the main layout */
+            display: flex;
+            flex-direction: row; /* Layout sidebar and main content side-by-side */
+            /* CRITICAL: Prevent the body itself from scrolling. The content area will handle it. */
+            overflow: hidden;
         }
 
         /* Active link styling for sidebar */
@@ -78,11 +82,14 @@
             flex-direction: column;
             flex-grow: 1; /* This is crucial for content to expand vertically */
             min-height: 0; /* Allow flex item to shrink */
+            /* CRITICAL: This is the element that should scroll, keeping the sidebar and header fixed */
+            overflow-y: auto;
+            /* Add some padding for better spacing */
+            padding: 1.5rem;
         }
     </style>
 </head>
-<body class="h-screen overflow-hidden">
-
+<body>
     <!-- Login Page Container -->
     <!-- Initial state: display flex for login, as it's the first thing to show -->
     <div id="login-container" class="w-full h-full fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-900 to-black p-4">
